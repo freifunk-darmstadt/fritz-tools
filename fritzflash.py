@@ -96,6 +96,70 @@ def autodiscover_avm_ip():
     return None
 
 
+def determine_image_name(env_string):
+    models = {
+        "219": "avm-fritz-box-4020-sysupgrade.bin"
+    }
+    for model in models.keys():
+        if model in env_string:
+            return models[model]
+    return None
+
+
+def autoload_image(ip):
+    print("-> Starting automatic image-selection!")
+    fritzenv = [b'']
+    model = None
+
+    def printenv(block, fritzenv=fritzenv):
+        fritzenv[0] += block
+
+    ftp = FTP(ip, user='adam2', passwd='adam2', timeout=1)
+    ftp.set_pasv(True)
+    ftp.voidcmd('MEDIA SDRAM')
+    try:
+        ftp.retrbinary('RETR env', printenv)
+    except socket.timeout:
+        pass
+    ftp.quit()
+    env = fritzenv[0].decode('ascii').splitlines()
+    for line in env:
+        if "HWRevision" in line:
+            model = determine_image_name(line)
+            if model is None:
+                print("-> Automatic image-selection unsuccessful!")
+                print("--> Could not determine model!")
+                exit(1)
+            break
+
+    dir_content = os.listdir(os.getcwd())
+    files = []
+    for file in dir_content:
+        cwd = os.getcwd()
+        file = os.path.join(cwd, file)
+        if not os.path.isfile(file):
+            continue
+        if model in file:
+            files.append(file)
+
+    if len(files) > 1:
+        print("-> Automatic image-selection unsuccessful!")
+        print("--> Multiple potential image files found!")
+        for file in files:
+            print("----> %s" % file)
+        exit(1)
+
+    if len(files) is 0:
+        print("-> Automatic image-selection unsuccessful!")
+        print("--> No potential image file found!")
+        exit(1)
+
+    print("-> Automatic image-selection successful!")
+    print("--> Will flash %s" % files[0])
+
+    return open(files[0], 'rb')
+
+
 def perform_flash(ip, file):
     ftp = None
     i = 1
@@ -143,6 +207,8 @@ if __name__ == '__main__':
     parser.add_argument('--image', type=str, help='Image file to transfer.')
     args = parser.parse_args()
 
+    imagefile = None
+
     if args.ip:
         try:
             socket.inet_aton(args.ip)
@@ -150,11 +216,12 @@ if __name__ == '__main__':
             print("%s is not a valid IPv4 address!" % args.ip_address)
             exit(1)
 
-    try:
-        imagefile = open(args.image, 'rb')
-    except FileNotFoundError:
-        print("Image file \"%s\" does not exist!" % os.path.abspath(args.image_path))
-        exit(1)
+    if args.image:
+        try:
+            imagefile = open(args.image, 'rb')
+        except FileNotFoundError:
+            print("Image file \"%s\" does not exist!" % os.path.abspath(args.image_path))
+            exit(1)
 
     start_message()
     network_message("192.168.178.1")
@@ -175,5 +242,9 @@ if __name__ == '__main__':
 
         print("-> Autodiscovery succesful!")
         print("-> Device is at %s." % ip)
+
+    if args.image is None:
+        # Try to automatically locate an image to use
+        imagefile = autoload_image(ip)
 
     perform_flash(ip, imagefile)
