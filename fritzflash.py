@@ -1,0 +1,134 @@
+#! /usr/bin/env python3
+import argparse
+import ipaddress
+import os
+import socket
+import time
+from ftplib import FTP
+
+FTP_TIMEOUT = 2
+FTP_MAX_RETRY = 10
+
+
+def connection_refused_message():
+    print("\nIt seems you have a booted-up AVM device running in your Network.\n"
+          "This might be because you missed the 10 second window after powering on your AVM device.\n"
+          "In this case: Powercycle your device and retry.\n"
+          "If this problem persits, check if you might have connections to another AVM Device, e.g. via WiFi/WLAN.\n\n")
+
+
+def start_message():
+    print(
+        "This program will help you installing Gluon, a widely used Firmware for Freifunk networks, onto your AVM device.\n"
+        "You can always find the most current version of this script at https://www.github.com/freifunk-darmstadt/fritz-tools\n\n"
+        "It is strongly recommended to only connect your computer to the Device you want to flash.\n"
+        "Disable all other connections (Ethernet, WiFi/WLAN)!\n")
+
+
+def network_message(ip_address):
+    print(
+        "Before we start, make sure you have assigned your PC a static IP Address in the Subnet of the Device you want to flash.")
+    print("The following example would be a completely fine option:\n")
+    print("IP-Address: %s" % str(ipaddress.ip_address(ip_address) + 1))
+    print("Subnet: 255.255.255.0")
+    print("Gateway: Leave blank")
+    print("DNS Servers: Leave blank\n")
+    print("Press enter when you have adjusted or verified your settings.")
+
+
+def power_off_message():
+    print("Disconnect power from the device and press enter.")
+
+
+def power_on_message():
+    print("Now connect the power-supply back and press enter.")
+
+
+def connect_message():
+    print("We will now connect to your devices bootloader.")
+
+
+def flash_message():
+    print("\nYour Gluon image will now be written to your AVM device.\n"
+          "This process can take a lot of time.\n\n"
+          "First, the Device will erase it's current Operating System.\n"
+          "Afterwards the Device will write the Gluon image to it's memory.\n"
+          "The red Info LED will illuminate in this step. Don't worry, this is expected behavior.\n\n"
+          "We will tell you when your device has finished installing Gluon.")
+
+
+def finish_message():
+    print("\n== Congratulations! ==\n\n"
+          "Your Device is now running Gluon.\n"
+          "It will restart and in 2-5 minutes you will be able to visit it's config-mode.\n"
+          "You can reach config-mode by typing in http://192.168.1.1/ in your preferred Webbrowser.")
+
+
+def perform_flash(ip, file):
+    ftp = None
+    i = 1
+
+    start_message()
+    network_message(ip)
+    input()
+    power_off_message()
+    input()
+    power_on_message()
+    input()
+
+    print("-> Establishing connection to device!")
+
+    while i <= FTP_MAX_RETRY:
+        print("-->Try %d of %d" % (i, FTP_MAX_RETRY))
+        try:
+            ftp = FTP(ip, user='adam2', passwd='adam2', timeout=FTP_TIMEOUT)
+            break
+        except socket.timeout:
+            i += 1
+        except ConnectionRefusedError:
+            connection_refused_message()
+            exit(1)
+        except OSError:
+            time.sleep(1)
+            i += 1
+
+    if i > FTP_MAX_RETRY:
+        print("Max retrys exceeded! Check connection and again.")
+        exit(1)
+
+    print("-> Connection established!")
+    ftp.sock.settimeout(60 * 5)
+    print("--> Select flash media")
+    ftp.voidcmd('MEDIA FLSH')
+    print("--> Enable passive mode")
+    ftp.set_pasv(True)
+    print("-> Flash image")
+    flash_message()
+    ftp.storbinary('STOR mtd1', file)
+    print("-> Image write successful")
+    print("-> Performing reboot")
+    ftp.voidcmd('REBOOT')
+    print("-> Closing connection")
+    ftp.close()
+    finish_message()
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Flash Gluon image to AVM Devices using EVA.')
+    parser.add_argument('ip_address', metavar='IP', type=str, help='IP Address of device')
+    parser.add_argument('image_path', metavar='IMAGE', type=str, help='Image file to transfer')
+    args = parser.parse_args()
+
+    try:
+        socket.inet_aton(args.ip_address)
+    except socket.error:
+        print("%s is not a valid IPv4 address!" % args.ip_address)
+        exit(1)
+
+    try:
+        imagefile = open(args.image_path, 'rb')
+    except FileNotFoundError:
+        print("Image file \"%s\" does not exist!" % os.path.abspath(args.image_path))
+        exit(1)
+
+    perform_flash(args.ip_address, imagefile)
