@@ -139,18 +139,19 @@ def perform_flash(ip, file):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Flash Gluon image to AVM Devices using EVA.')
-    parser.add_argument('ip_address', metavar='IP', type=str, help='IP Address of device')
-    parser.add_argument('image_path', metavar='IMAGE', type=str, help='Image file to transfer')
+    parser.add_argument('--ip', type=str, help='IP Address of device. Autodiscovery if not specified.')
+    parser.add_argument('--image', type=str, help='Image file to transfer.')
     args = parser.parse_args()
 
-    try:
-        socket.inet_aton(args.ip_address)
-    except socket.error:
-        print("%s is not a valid IPv4 address!" % args.ip_address)
-        exit(1)
+    if args.ip:
+        try:
+            socket.inet_aton(args.ip)
+        except socket.error:
+            print("%s is not a valid IPv4 address!" % args.ip_address)
+            exit(1)
 
     try:
-        imagefile = open(args.image_path, 'rb')
+        imagefile = open(args.image, 'rb')
     except FileNotFoundError:
         print("Image file \"%s\" does not exist!" % os.path.abspath(args.image_path))
         exit(1)
@@ -163,14 +164,16 @@ if __name__ == '__main__':
     power_on_message()
     input()
 
-    print("-> Trying to autodiscover!")
-    ip = autodiscover_avm_ip()
-
+    ip = args.ip
     if ip is None:
-        print("-> Autodiscovery failed!")
-        exit(1)
+        print("-> Trying to autodiscover!")
+        ip = autodiscover_avm_ip()
 
-    print("-> Autodiscovery succesful!")
-    print("-> Device is at %s." % ip)
+        if ip is None:
+            print("-> Autodiscovery failed!")
+            exit(1)
 
-    perform_flash(args.ip_address, imagefile)
+        print("-> Autodiscovery succesful!")
+        print("-> Device is at %s." % ip)
+
+    perform_flash(ip, imagefile)
