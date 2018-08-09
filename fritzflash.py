@@ -6,6 +6,8 @@ import socket
 import time
 from ftplib import FTP
 
+AUTODISCOVER_TIMEOUT = 1
+AUTODISCOVER_MAX_RETRY = 10
 FTP_TIMEOUT = 2
 FTP_MAX_RETRY = 10
 
@@ -64,17 +66,39 @@ def finish_message():
           "You can reach config-mode by typing in http://192.168.1.1/ in your preferred Webbrowser.")
 
 
+def autodiscover_avm_ip():
+    sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sender.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sender.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    sender.settimeout(1)
+
+    receiver = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    receiver.settimeout(AUTODISCOVER_TIMEOUT)
+    receiver.bind(('0.0.0.0', 5035))
+
+    i = 1
+    while i <= AUTODISCOVER_MAX_RETRY:
+        try:
+            print("Try %d" % i)
+            receiver.sendto(b'aa', ("192.168.178.1", 5035))  # Dirty hack to add conntrack entry
+            sender.sendto(bytearray.fromhex("0000120101000000c0a8b20100000000"), ('255.255.255.255', 5035))
+            while 1:
+                data, addr = receiver.recvfrom(64)
+                if addr[0] == '192.168.178.1':
+                    print("FritzBox found at %s" % addr[0])
+                    return addr[0]
+        except socket.timeout:
+            i += 1
+        except OSError:
+            i += 1
+            time.sleep(1)
+
+    return None
+
+
 def perform_flash(ip, file):
     ftp = None
     i = 1
-
-    start_message()
-    network_message(ip)
-    input()
-    power_off_message()
-    input()
-    power_on_message()
-    input()
 
     print("-> Establishing connection to device!")
 
@@ -130,5 +154,23 @@ if __name__ == '__main__':
     except FileNotFoundError:
         print("Image file \"%s\" does not exist!" % os.path.abspath(args.image_path))
         exit(1)
+
+    start_message()
+    network_message("192.168.178.1")
+    input()
+    power_off_message()
+    input()
+    power_on_message()
+    input()
+
+    print("-> Trying to autodiscover!")
+    ip = autodiscover_avm_ip()
+
+    if ip is None:
+        print("-> Autodiscovery failed!")
+        exit(1)
+
+    print("-> Autodiscovery succesful!")
+    print("-> Device is at %s." % ip)
 
     perform_flash(args.ip_address, imagefile)
