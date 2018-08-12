@@ -12,6 +12,58 @@ FTP_TIMEOUT = 2
 FTP_MAX_RETRY = 10
 
 
+class FritzFTP(FTP):
+    class ConnectionTimeout(Exception):
+        pass
+
+    def __init__(self, ip, username='adam2', password='adam2', timeout=1, max_retry=0, retry_cb=None):
+        i = 1
+        while i <= max_retry:
+            try:
+                retry_cb(i, max_retry)
+                super().__init__(ip, user=username, passwd=password, timeout=timeout)
+                break
+            except socket.timeout:
+                i += 1
+            except OSError as e:
+                time.sleep(1)
+                i += 1
+        if i > max_retry:
+            raise FritzFTP.ConnectionTimeout()
+        self.set_pasv(True)
+
+    def getenv(self):
+        env = [b'']
+        fritzenv = {}
+
+        def storeenv(x):
+            env[0] += x
+
+        self.voidcmd('MEDIA SDRAM')
+        try:
+            self.retrbinary('RETR env', storeenv)
+        except socket.timeout:
+            pass
+
+        for line in env[0].decode('ascii').splitlines():
+            l = line.split()
+            fritzenv[l[0]] = l[1]
+
+        return fritzenv
+
+    def set_flash_timeout(self):
+        self.sock.settimeout(60 * 5)
+
+    def upload_image(self, image):
+        self.set_flash_timeout()
+        self.voidcmd('MEDIA FLSH')
+        self.storbinary('STOR mtd1', image)
+
+    def reboot(self):
+        self.voidcmd('REBOOT')
+        self.close()
+
+
 def connection_refused_message():
     print("\nIt seems you have a booted-up AVM device running in your Network.\n"
           "This might be because you missed the 10 second window after powering on your AVM device.\n"
@@ -66,6 +118,10 @@ def finish_message():
           "You can reach config-mode by typing in http://192.168.1.1/ in your preferred Webbrowser.")
 
 
+def retry_status(current_try, max_try):
+    print("-->Try %d of %d" % (current_try, max_try))
+
+
 def autodiscover_avm_ip():
     sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sender.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -101,36 +157,38 @@ def determine_image_name(env_string):
         "219": "avm-fritz-box-4020-sysupgrade.bin"
     }
     for model in models.keys():
-        if model in env_string:
+        if model == env_string:
             return models[model]
     return None
 
 
 def autoload_image(ip):
     print("-> Starting automatic image-selection!")
-    fritzenv = [b'']
-    model = None
+    print("--> Establishing connection to device!")
 
-    def printenv(block, fritzenv=fritzenv):
-        fritzenv[0] += block
-
-    ftp = FTP(ip, user='adam2', passwd='adam2', timeout=1)
-    ftp.set_pasv(True)
-    ftp.voidcmd('MEDIA SDRAM')
     try:
-        ftp.retrbinary('RETR env', printenv)
-    except socket.timeout:
-        pass
-    ftp.quit()
-    env = fritzenv[0].decode('ascii').splitlines()
-    for line in env:
-        if "HWRevision" in line:
-            model = determine_image_name(line)
-            if model is None:
-                print("-> Automatic image-selection unsuccessful!")
-                print("--> Could not determine model!")
-                exit(1)
-            break
+        ftp = FritzFTP(ip, timeout=FTP_TIMEOUT, max_retry=FTP_MAX_RETRY, retry_cb=retry_status)
+    except FritzFTP.ConnectionTimeout:
+        print("-> Max retrys exceeded! Check connection and try again.")
+        exit(1)
+    except ConnectionRefusedError:
+        connection_refused_message()
+        exit(1)
+
+    env = ftp.getenv()
+    ftp.close()
+
+    if 'HWRevision' not in env:
+        print("-> Automatic image-selection unsuccessful!")
+        print("--> No model saved on device!")
+        exit(1)
+
+    model = determine_image_name(env["HWRevision"])
+
+    if model is None:
+        print("-> Automatic image-selection unsuccessful!")
+        print("--> Unknown Model %s!" % env["HWRevision"])
+        exit(1)
 
     dir_content = os.listdir(os.getcwd())
     files = []
@@ -161,43 +219,23 @@ def autoload_image(ip):
 
 
 def perform_flash(ip, file):
-    ftp = None
-    i = 1
-
     print("-> Establishing connection to device!")
 
-    while i <= FTP_MAX_RETRY:
-        print("-->Try %d of %d" % (i, FTP_MAX_RETRY))
-        try:
-            ftp = FTP(ip, user='adam2', passwd='adam2', timeout=FTP_TIMEOUT)
-            break
-        except socket.timeout:
-            i += 1
-        except ConnectionRefusedError:
-            connection_refused_message()
-            exit(1)
-        except OSError:
-            time.sleep(1)
-            i += 1
-
-    if i > FTP_MAX_RETRY:
-        print("Max retrys exceeded! Check connection and again.")
+    try:
+        ftp = FritzFTP(ip, timeout=FTP_TIMEOUT, max_retry=FTP_MAX_RETRY, retry_cb=retry_status)
+    except FritzFTP.ConnectionTimeout:
+        print("-> Max retrys exceeded! Check connection and try again.")
+        exit(1)
+    except ConnectionRefusedError:
+        connection_refused_message()
         exit(1)
 
-    print("-> Connection established!")
-    ftp.sock.settimeout(60 * 5)
-    print("--> Select flash media")
-    ftp.voidcmd('MEDIA FLSH')
-    print("--> Enable passive mode")
-    ftp.set_pasv(True)
     print("-> Flash image")
     flash_message()
-    ftp.storbinary('STOR mtd1', file)
+    ftp.upload_image(file)
     print("-> Image write successful")
     print("-> Performing reboot")
-    ftp.voidcmd('REBOOT')
-    print("-> Closing connection")
-    ftp.close()
+    ftp.reboot()
     finish_message()
 
 
