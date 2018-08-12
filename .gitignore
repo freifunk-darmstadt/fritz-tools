@@ -1,4 +1,4 @@
-*.pyc
 .idea/
-.bin
-.img
+*.bin
+*.img
+*.pyc
