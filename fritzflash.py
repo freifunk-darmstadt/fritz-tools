@@ -154,7 +154,8 @@ def autodiscover_avm_ip():
 
 def determine_image_name(env_string):
     models = {
-        "219": "avm-fritz-box-4020-sysupgrade.bin"
+        "219": "avm-fritz-box-4020-sysupgrade.bin",
+        "227": "avm-fritz-box-4040-bootloader.bin"
     }
     for model in models.keys():
         if model == env_string:
