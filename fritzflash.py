@@ -7,7 +7,6 @@ import time
 from ftplib import FTP
 
 AUTODISCOVER_TIMEOUT = 1
-AUTODISCOVER_MAX_RETRY = 10
 FTP_TIMEOUT = 2
 FTP_MAX_RETRY = 10
 
@@ -68,59 +67,47 @@ def connection_refused_message():
     print("\nIt seems you have a booted-up AVM device running in your Network.\n"
           "This might be because you missed the 10 second window after powering on your AVM device.\n"
           "In this case: Powercycle your device and retry.\n"
-          "If this problem persits, check if you might have connections to another AVM Device, e.g. via WiFi/WLAN.\n\n")
+          "If this problem persits, check if you might have connections to another AVM device, e.g. via WiFi/WLAN.\n\n")
 
 
-def start_message():
+def start_message(ip_address):
     print(
         "This program will help you installing Gluon, a widely used Firmware for Freifunk networks, onto your AVM device.\n"
         "You can always find the most current version of this script at https://www.github.com/freifunk-darmstadt/fritz-tools\n\n"
-        "It is strongly recommended to only connect your computer to the Device you want to flash.\n"
-        "Disable all other connections (Ethernet, WiFi/WLAN)!\n")
-
-
-def network_message(ip_address):
-    print(
-        "Before we start, make sure you have assigned your PC a static IP Address in the Subnet of the Device you want to flash.")
-    print("The following example would be a completely fine option:\n")
+        "It is strongly recommended to only connect your computer to the device you want to flash.\n"
+        "Disable all other connections (Ethernet, WiFi/WLAN)!\n\n"
+        "Before we start, make sure you have assigned your PC a static IP Address in the Subnet of the device you want to flash.\n"
+        "The following example would be a completely fine option:\n")
     print("IP-Address: %s" % str(ipaddress.ip_address(ip_address) + 1))
     print("Subnet: 255.255.255.0")
-    print("Gateway: Leave blank")
+    print("Gateway: %s" % str(ipaddress.ip_address(ip_address)))
     print("DNS Servers: Leave blank\n")
-    print("Press enter when you have adjusted or verified your settings.")
-
-
-def power_off_message():
-    print("Disconnect power from the device and press enter.")
-
-
-def power_on_message():
-    print("Now connect the power-supply back and press enter.")
-
+    print("Once you're done, disconnect power from your AVM device, reconnect the power-supply and press enter.")
 
 def connect_message():
     print("We will now connect to your devices bootloader.")
 
 
 def flash_message():
-    print("\nYour Gluon image will now be written to your AVM device.\n"
-          "This process can take a lot of time.\n\n"
-          "First, the Device will erase it's current Operating System.\n"
-          "Afterwards the Device will write the Gluon image to it's memory.\n"
+    print("\nWriting Gluon image to your AVM device...\n"
+          "This process may take a lot of time.\n\n"
+          "First, the device will erase it's current Operating System.\n"
+          "Next, the device will write the Gluon image to it's memory.\n"
           "The red Info LED will illuminate in this step. Don't worry, this is expected behavior.\n\n"
-          "We will tell you when your device has finished installing Gluon.")
+          "Do *not* turn of the device!\n\n"
+          "We will tell you when your device has finished installing Gluon (this may take a while).")
 
 
 def finish_message():
     print("\n== Congratulations! ==\n\n"
-          "Your Device is now running Gluon.\n"
+          "Your device is now running Gluon.\n"
           "It will restart and in 2-5 minutes you will be able to visit it's config-mode.\n"
           "Remember to reconfigure your interface to automatically obtain an IP-address!\n"
           "You can reach config-mode by typing in http://192.168.1.1/ in your preferred Webbrowser.")
 
 
 def retry_status(current_try, max_try):
-    print("-->Try %d of %d" % (current_try, max_try))
+    print("--> Try %d of %d" % (current_try, max_try))
 
 
 def autodiscover_avm_ip():
@@ -134,21 +121,24 @@ def autodiscover_avm_ip():
     receiver.bind(('0.0.0.0', 5035))
 
     i = 1
-    while i <= AUTODISCOVER_MAX_RETRY:
+    while True:
         try:
-            print("Try %d" % i)
+            print("\rTry %d..." % i, end='')
             receiver.sendto(b'aa', ("192.168.178.1", 5035))  # Dirty hack to add conntrack entry
             sender.sendto(bytearray.fromhex("0000120101000000c0a8b20100000000"), ('255.255.255.255', 5035))
             while 1:
                 data, addr = receiver.recvfrom(64)
                 if addr[0] == '192.168.178.1':
-                    print("FritzBox found at %s" % addr[0])
+                    print("\rFritzBox found at %s" % addr[0])
                     return addr[0]
         except socket.timeout:
             i += 1
         except OSError:
             i += 1
             time.sleep(1)
+        except KeyboardInterrupt:
+            print('\rAborting...\n')
+            return None
 
     return None
 
@@ -165,8 +155,8 @@ def determine_image_name(env_string):
 
 
 def autoload_image(ip):
-    print("-> Starting automatic image-selection!")
-    print("--> Establishing connection to device!")
+    print("\nStarting automatic image-selection!")
+    print("-> Establishing connection to device!")
 
     try:
         ftp = FritzFTP(ip, timeout=FTP_TIMEOUT, max_retry=FTP_MAX_RETRY, retry_cb=retry_status)
@@ -181,15 +171,15 @@ def autoload_image(ip):
     ftp.close()
 
     if 'HWRevision' not in env:
-        print("-> Automatic image-selection unsuccessful!")
-        print("--> No model saved on device!")
+        print("\nAutomatic image-selection unsuccessful!")
+        print("-> No model saved on device!")
         exit(1)
 
-    model = determine_image_name(env["HWRevision"])
+    image_name = determine_image_name(env["HWRevision"])
 
-    if model is None:
-        print("-> Automatic image-selection unsuccessful!")
-        print("--> Unknown Model %s!" % env["HWRevision"])
+    if image_name is None:
+        print("\nAutomatic image-selection unsuccessful!")
+        print("-> Unknown Model %s!" % env["HWRevision"])
         exit(1)
 
     dir_content = os.listdir(os.getcwd())
@@ -199,19 +189,21 @@ def autoload_image(ip):
         file = os.path.join(cwd, file)
         if not os.path.isfile(file):
             continue
-        if model in file:
+        if image_name in file:
             files.append(file)
 
     if len(files) > 1:
-        print("-> Automatic image-selection unsuccessful!")
-        print("--> Multiple potential image files found!")
+        print("\nAutomatic image-selection unsuccessful!")
+        print("-> Multiple potential image files found!")
         for file in files:
-            print("----> %s" % file)
+            print("--> %s" % file)
+        print("\nPlease specify the image via `--image` parameter.")
         exit(1)
 
     if len(files) is 0:
-        print("-> Automatic image-selection unsuccessful!")
+        print("\nAutomatic image-selection unsuccessful!")
         print("--> No potential image file found!")
+        print("\nPlease download and specify the image via `--image` parameter.")
         exit(1)
 
     print("-> Automatic image-selection successful!")
@@ -242,7 +234,7 @@ def perform_flash(ip, file):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Flash Gluon image to AVM Devices using EVA.')
+    parser = argparse.ArgumentParser(description='Flash Gluon image to AVM devices using EVA.')
     parser.add_argument('--ip', type=str, help='IP Address of device. Autodiscovery if not specified.')
     parser.add_argument('--image', type=str, help='Image file to transfer.')
     args = parser.parse_args()
@@ -263,25 +255,20 @@ if __name__ == '__main__':
             print("Image file \"%s\" does not exist!" % os.path.abspath(args.image_path))
             exit(1)
 
-    start_message()
-    network_message("192.168.178.1")
-    input()
-    power_off_message()
-    input()
-    power_on_message()
+    start_message("192.168.178.1")
     input()
 
     ip = args.ip
     if ip is None:
-        print("-> Trying to autodiscover!")
+        print("Trying to autodiscover! Abort via Ctrl-c.")
         ip = autodiscover_avm_ip()
 
         if ip is None:
-            print("-> Autodiscovery failed!")
+            print("\nAutodiscovery failed!")
             exit(1)
 
-        print("-> Autodiscovery succesful!")
-        print("-> Device is at %s." % ip)
+        print("\nAutodiscovery succesful!")
+        print("-> Device detected at %s." % ip)
 
     if args.image is None:
         # Try to automatically locate an image to use
