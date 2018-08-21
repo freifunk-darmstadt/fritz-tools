@@ -1,0 +1,133 @@
+# Copyright (C) 2018, Freifunk Darmstadt
+# This file is distributed under the same license as the fritz-tools
+# package.
+#
+
+
+#: ../../flashing/ubuntu_1804.rst:2
+msgid "Flash Gluon using Ubuntu 18.04"
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:4
+msgid "Your router can be flashed in a few easy step from Ubuntu 18.04."
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:7
+msgid "Preperation"
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:9
+msgid ""
+"First you need to download the image for your device from your local "
+"Freifunk community. This is important to do right now as you will have no"
+" ability to do so later on."
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:13
+msgid "Download the flash-script"
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:15
+msgid ""
+"Open a terminal by pressing ``Ctrl+Alt+T`` or open the application-drawer"
+" (bottom left) and search for Terminal."
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:19
+msgid ""
+"Next, go to the directory you saved the image you downloaded in the "
+"preperation step. In most cases this is done by executing ``cd "
+"Downloads``."
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:21
+msgid ""
+"Now you want to download the script by executing ``wget "
+"https://raw.githubusercontent.com/freifunk-darmstadt/fritz-"
+"tools/master/fritzflash.py``."
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:25
+msgid ""
+"Confirm both the Gluon image you want to flash and the script are present"
+" in the current directory by executing ``ls``."
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:27
+msgid "Keep the Terminal window open."
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:31
+msgid "Configuring a static IP-address"
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:33
+msgid "Open the settings application."
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:35
+msgid "If your computer has WiFi, make sure to disable it now."
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:39
+msgid ""
+"Select ``Network`` from the left menu and open the settings by clicking "
+"on the gear button."
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:43
+msgid ""
+"Configure your Settings as seen in the following screenshot and confirm "
+"by clicking on ``Apply`` in the top right corner."
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:47
+msgid ""
+"Now you will need to deactivate and reactivate the network interface to "
+"correctly apply the settings. Do so by turning the connection from On to "
+"Off. Wait two seconds and turn the connection back On again."
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:51
+msgid "Keep the settings window open."
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:55
+msgid "Install Gluon"
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:57
+msgid ""
+"Connect the router with your computer. In case it has multiple ports, use"
+" the yellow LAN-ports."
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:59
+msgid ""
+"Execute the flash-script by executing ``python3 fritzflash.py`` in the "
+"Terminal window you left open."
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:65
+msgid "Revert network settings"
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:67
+msgid ""
+"Before you are able to reach the Config-mode of your new node you have to"
+" reconfigure your network interface to automatically obtain an IP-address"
+" using DHCP."
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:69
+msgid ""
+"Configure your network interface interface as pictured on the screenshot "
+"below and confirm by selecting ``Apply``."
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:73
+msgid ""
+"You will (again) need to deactivate and reactivate the Network interface "
+"to correctly apply the settings. Do so by turning the connection from On "
+"to Off. Wait two seconds and turn the connection back On again."
+msgstr ""

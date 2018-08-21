@@ -1,0 +1,76 @@
+# Copyright (C) 2018, Freifunk Darmstadt
+# This file is distributed under the same license as the fritz-tools
+# package.
+#
+
+#: ../../index.rst:2
+msgid "Welcome to fritz-tools"
+msgstr ""
+
+#: ../../index.rst:4
+msgid ""
+"This is a collection of useful scripts, primarily for use with the "
+"bootloader of AVM networking devices."
+msgstr ""
+"Dies ist eine Sammlung nützlicher Skripte, hauptsächlich gedacht für "
+"die Benutzung mit dem Bootloader von AVM Geräten."
+
+#: ../../index.rst:6
+msgid "fritzflash.sh"
+msgstr ""
+
+#: ../../index.rst:15
+msgid "Supported Devices"
+msgstr "Unterstützte Geräte"
+
+#: ../../index.rst:17
+msgid ""
+"These devices are confirmed working using the tools provided in this "
+"repository."
+msgstr ""
+"Die Werkzeuge in diesem Repository wurden mit den folgenden Geräten "
+"getestet."
+
+#: ../../index.rst:19
+msgid "FRITZ!Box 3370"
+msgstr ""
+
+#: ../../index.rst:20
+msgid "FRITZ!Box 4020"
+msgstr ""
+
+#: ../../index.rst:21
+msgid "FRITZ!Box 4040"
+msgstr ""
+
+#: ../../index.rst:22
+msgid "FRITZ!WLAN Repeater 450E"
+msgstr ""
+
+#: ../../index.rst:23
+msgid "FRITZ!WLAN Repeater 1750E"
+msgstr ""
+
+#: ../../index.rst:26
+msgid "License"
+msgstr "Lizenz"
+
+#: ../../index.rst:28
+msgid "See LICENCE_"
+msgstr "Siehe LICENCE_"
+
+#: ../../index.rst:33
+msgid "Indices and tables"
+msgstr "Index"
+
+#: ../../index.rst:35
+msgid ":ref:`genindex`"
+msgstr ""
+
+#: ../../index.rst:36
+msgid ":ref:`modindex`"
+msgstr ""
+
+#: ../../index.rst:37
+msgid ":ref:`search`"
+msgstr ""

@@ -1,0 +1,123 @@
+# Copyright (C) 2018, Freifunk Darmstadt
+# This file is distributed under the same license as the fritz-tools
+# package.
+#
+
+#: ../../flashing/macos.rst:2
+msgid "Flash Gluon using MacOS X"
+msgstr ""
+
+#: ../../flashing/macos.rst:4
+msgid "Your router can be flashed in a few easy step from MacOS X."
+msgstr ""
+
+#: ../../flashing/macos.rst:7
+msgid "Preperation"
+msgstr ""
+
+#: ../../flashing/macos.rst:9
+msgid ""
+"To execute the fritzflash.py script you need to have Python 3 installed. "
+"You can obtain the latest version from the Python project here_."
+msgstr ""
+
+#: ../../flashing/macos.rst:13
+msgid ""
+"You also need to download the image for your device from your local "
+"Freifunk community. This is important to make right now as you will have "
+"no ability to do so later on."
+msgstr ""
+
+#: ../../flashing/macos.rst:17
+msgid "Download the flash-script"
+msgstr ""
+
+#: ../../flashing/macos.rst:19
+msgid "Open a terminal by pressing cmd+Space."
+msgstr ""
+
+#: ../../flashing/macos.rst:21
+msgid ""
+"Next, go to the directory you saved the Image you downloaded in the "
+"preperation step. In most cases this is done by èxecuting ``cd "
+"Downloads``."
+msgstr ""
+
+#: ../../flashing/macos.rst:23
+msgid ""
+"Now you want to download the script by executing ``curl -O "
+"https://raw.githubusercontent.com/freifunk-darmstadt/fritz-"
+"tools/master/fritzflash.py``."
+msgstr ""
+
+#: ../../flashing/macos.rst:25
+msgid ""
+"Confirm both the Gluon image you want to flash and the script are present"
+" in the current directory by executing ``ls``."
+msgstr ""
+
+#: ../../flashing/macos.rst:29
+msgid "Keep the Terminal window open."
+msgstr ""
+
+#: ../../flashing/macos.rst:33
+msgid "Configuring a static IP-address"
+msgstr ""
+
+#: ../../flashing/macos.rst:35
+msgid "Open ``System Preferences`` and select ``Network``."
+msgstr ""
+
+#: ../../flashing/macos.rst:39
+msgid "Make sure to disable your Wireless connection now."
+msgstr ""
+
+#: ../../flashing/macos.rst:43
+msgid ""
+"Select ``Ethernet`` from the left menu and in case input fields are "
+"grayed out, unlock settings by clicking on the Lock in the bottom left "
+"corner."
+msgstr ""
+
+#: ../../flashing/macos.rst:47
+msgid ""
+"Configure your settings as seen in following screenshot and confirm by "
+"clicking on ``Apply``. Keep the window opened."
+msgstr ""
+
+#: ../../flashing/macos.rst:53
+msgid "Install Gluon"
+msgstr ""
+
+#: ../../flashing/macos.rst:55
+msgid ""
+"Connect the router with your computer. In case it has multiple ports, use"
+" the yellow LAN-ports."
+msgstr ""
+
+#: ../../flashing/macos.rst:57
+msgid ""
+"Execute the flash-script by executing ``python3 fritzflash.py`` in the "
+"Terminal window you left open."
+msgstr ""
+
+#: ../../flashing/macos.rst:61
+msgid "In case you're asked to allow incoming connection or not select ``Allow``."
+msgstr ""
+
+#: ../../flashing/macos.rst:67
+msgid "Revert network settings"
+msgstr ""
+
+#: ../../flashing/macos.rst:69
+msgid ""
+"Before you are able to reach the Config-mode of your new node you have to"
+" reconfigure your network interface to automatically obtain an IP-address"
+" using DHCP."
+msgstr ""
+
+#: ../../flashing/macos.rst:71
+msgid ""
+"Configure your ``Ethernet`` interface as pictured on the screenshot below"
+" and confirm by selecting ``Apply``."
+msgstr ""

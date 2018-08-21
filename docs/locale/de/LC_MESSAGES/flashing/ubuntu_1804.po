@@ -1,0 +1,166 @@
+# Copyright (C) 2018, Freifunk Darmstadt
+# This file is distributed under the same license as the fritz-tools
+# package.
+#
+
+#: ../../flashing/ubuntu_1804.rst:2
+msgid "Flash Gluon using Ubuntu 18.04"
+msgstr "Installation von Gluon mittels Ubuntu 18.04"
+
+#: ../../flashing/ubuntu_1804.rst:4
+msgid "Your router can be flashed in a few easy step from Ubuntu 18.04."
+msgstr ""
+"Dein Router kann in ein paar einfachen Schritten mit Ubuntu 18.04 "
+"installiert werden."
+
+#: ../../flashing/ubuntu_1804.rst:7
+msgid "Preperation"
+msgstr "Vorbereitung"
+
+#: ../../flashing/ubuntu_1804.rst:9
+msgid ""
+"First you need to download the image for your device from your local "
+"Freifunk community. This is important to do right now as you will have "
+"no ability to do so later on."
+msgstr ""
+"Zuerst musst du das Image für dein Gerät von deiner lokalen Freifunk-"
+"Community herunterladen. Es ist wichtig dies jetzt zu tun, da du später "
+"nicht die Möglichkeit hierzu haben wirst."
+
+#: ../../flashing/ubuntu_1804.rst:13
+msgid "Download the flash-script"
+msgstr "Lade das Flash-Skript herunter"
+
+#: ../../flashing/ubuntu_1804.rst:15
+msgid ""
+"Open a terminal by pressing ``Ctrl+Alt+T`` or open the application-"
+"drawer (bottom left) and search for Terminal."
+msgstr ""
+"Öffne ein Terminal mittels ``Strg+Alt+T``. Alternativ kannst du auch im "
+"Application-Drawer (unten links) nach Terminal suchen."
+
+#: ../../flashing/ubuntu_1804.rst:19
+msgid ""
+"Next, go to the directory you saved the image you downloaded in the "
+"preperation step. In most cases this is done by executing ``cd "
+"Downloads``."
+msgstr ""
+"Navigiere als nächstes in das Verzeichnis, in welches du das Image "
+"heruntergeladen hast. In den meisten Fällen tust du dies durch ausführen "
+"von ``cd Downloads``."
+
+#: ../../flashing/ubuntu_1804.rst:21
+msgid ""
+"Now you want to download the script by executing ``wget https://raw."
+"githubusercontent.com/freifunk-darmstadt/fritz-tools/master/fritzflash."
+"py``."
+msgstr ""
+"Nun lädst du das Skript durch ausführen von ``wget https://raw."
+"githubusercontent.com/freifunk-darmstadt/fritz-tools/master/fritzflash."
+"py`` herunter."
+
+#: ../../flashing/ubuntu_1804.rst:25
+msgid ""
+"Confirm both the Gluon image you want to flash and the script are "
+"present in the current directory by executing ``ls``."
+msgstr ""
+"Stelle durch ausführen von ``ls`` sicher, dass sich sowohl das Gluon-"
+"Image als auch das Skript im aktuellen Verzeichnis befinden."
+
+#: ../../flashing/ubuntu_1804.rst:27
+msgid "Keep the Terminal window open."
+msgstr "Schließe das Terminal-Fenster nicht."
+
+#: ../../flashing/ubuntu_1804.rst:31
+msgid "Configuring a static IP-address"
+msgstr "Stelle eine statische IP-Adresse ein"
+
+#: ../../flashing/ubuntu_1804.rst:33
+msgid "Open the settings application."
+msgstr "Öffne das Programm Einstellungen."
+
+#: ../../flashing/ubuntu_1804.rst:35
+msgid "If your computer has WiFi, make sure to disable it now."
+msgstr "Sollte dein Computer über WiFi verfügen, deaktiviere dieses nun."
+
+#: ../../flashing/ubuntu_1804.rst:39
+msgid ""
+"Select ``Network`` from the left menu and open the settings by clicking "
+"on the gear button."
+msgstr ""
+"Wähle aus dem linken Menü ``Netzwerk`` aus und öffne die Einstellungen "
+"durch klicken auf das Zahnrad-symbol."
+
+#: ../../flashing/ubuntu_1804.rst:43
+msgid ""
+"Configure your Settings as seen in the following screenshot and confirm "
+"by clicking on ``Apply`` in the top right corner."
+msgstr ""
+"Fülle die Felder wie auf dem nachfolgenden screenshot ersichtlich aus "
+"und bestätige durch Klick auf ``Anwenden`` in der rechten oberen Ecke."
+
+#: ../../flashing/ubuntu_1804.rst:47
+msgid ""
+"Now you will need to deactivate and reactivate the network interface to "
+"correctly apply the settings. Do so by turning the connection from On to "
+"Off. Wait two seconds and turn the connection back On again."
+msgstr ""
+"Nun musst du zum übernehmen der Einstellungen das Netzwerk kurz Aus- und "
+"wieder Einschalten. Schalte das Netzwerk aus, warte zwei Sekunden und "
+"schalte es wieder ein."
+
+#: ../../flashing/ubuntu_1804.rst:51
+msgid "Keep the settings window open."
+msgstr "Schließe das Einstellungs-Fenster nicht."
+
+#: ../../flashing/ubuntu_1804.rst:55
+msgid "Install Gluon"
+msgstr "Gluon installieren"
+
+#: ../../flashing/ubuntu_1804.rst:57
+msgid ""
+"Connect the router with your computer. In case it has multiple ports, "
+"use the yellow LAN-ports."
+msgstr ""
+"Verbinde den Router mit deinem Computer. Sollte dein Router mehrere "
+"Ports haben, benutze die gelben LAN-Ports."
+
+#: ../../flashing/ubuntu_1804.rst:59
+msgid ""
+"Execute the flash-script by executing ``python3 fritzflash.py`` in the "
+"Terminal window you left open."
+msgstr ""
+"Führe das Flashskript mittels ``python3 fritzflash.py`` im Terminal-"
+"Fenster, welches du offen gelassen hast, aus."
+
+#: ../../flashing/ubuntu_1804.rst:65
+msgid "Revert network settings"
+msgstr "Wiederherstellen der Netzwerkeinstellungen"
+
+#: ../../flashing/ubuntu_1804.rst:67
+msgid ""
+"Before you are able to reach the Config-mode of your new node you have "
+"to reconfigure your network interface to automatically obtain an IP-"
+"address using DHCP."
+msgstr ""
+"Bevor du den Konfigurationsmodus deines neuen Freifunk-Knotens erreichen "
+"kannst, musst du die Netzwerkeinstellungen wieder zurückstellen, damit "
+"du mittels DHCP automatisch eine IP-Adresse bekommst."
+
+#: ../../flashing/ubuntu_1804.rst:69
+msgid ""
+"Configure your network interface interface as pictured on the screenshot "
+"below and confirm by selecting ``Apply``."
+msgstr ""
+"Stelle dein Netzwerk wie im folgenden Screenshot erkennbar ein und "
+"bestätige mit Klick auf ``Anwenden``."
+
+#: ../../flashing/ubuntu_1804.rst:73
+msgid ""
+"You will (again) need to deactivate and reactivate the Network interface "
+"to correctly apply the settings. Do so by turning the connection from On "
+"to Off. Wait two seconds and turn the connection back On again."
+msgstr ""
+"Du musst (wieder) die Einstellungen durch Aus- und Wiedereinschalten des "
+"Netzwerkes übernehmen. Schalte das Netzwerk aus, warte zwei Sekunden und "
+"schalte es wieder ein."
