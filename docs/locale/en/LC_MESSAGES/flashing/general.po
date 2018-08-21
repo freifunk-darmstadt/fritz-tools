@@ -1,0 +1,54 @@
+# Copyright (C) 2018, Freifunk Darmstadt
+# This file is distributed under the same license as the fritz-tools
+# package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fritz-tools \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-08-21 21:58+0200\n"
+"PO-Revision-Date: 2018-08-21 21:58+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../flashing/general.rst:2
+msgid "General information"
+msgstr ""
+
+#: ../../flashing/general.rst:5
+msgid "Selecting the right Image"
+msgstr ""
+
+#: ../../flashing/general.rst:7
+msgid ""
+"Gluon builds by default factory and sysupgrade images. AVM devices don't "
+"need special factory-images, so most of them are flashed via the "
+"sysupgrade images."
+msgstr ""
+
+#: ../../flashing/general.rst:9
+msgid ""
+"In case your community uses a tool for providing firmware, factory-images"
+" are often referenced as \"First-installation-images\" and sysupgrade-"
+"images are often called \"update-\" or \"upgrade-images\"."
+msgstr ""
+
+#: ../../flashing/general.rst:11
+msgid ""
+"Exceptions apply for the FRITZ!Box 4040. This device needs a special "
+"bootloader-image for use with the flash-script. Flashing with a "
+"sysupgrade image won't work."
+msgstr ""
+
+#: ../../flashing/general.rst:14
+msgid "Windows compatibility"
+msgstr ""
+
+#: ../../flashing/general.rst:16
+msgid ""
+"As Windows compatibility is not yet tested nor documented, the currently "
+"recommended way is using a live-version of Ubuntu."
+msgstr ""

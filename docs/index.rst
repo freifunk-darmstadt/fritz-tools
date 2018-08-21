@@ -5,8 +5,9 @@ This is a collection of useful scripts, primarily for use with the bootloader of
 
 .. toctree::
    :maxdepth: 2
-   :caption: fritzflash.sh
+   :caption: Flashing Gluon
 
+   flashing/general
    flashing/macos
    flashing/ubuntu_1804
 

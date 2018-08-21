@@ -2,7 +2,17 @@
 # This file is distributed under the same license as the fritz-tools
 # package.
 #
-
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2018-08-21 21:58+0200\n"
+"PO-Revision-Date: 2018-08-21 21:58+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
 
 #: ../../index.rst:2
 msgid "Welcome to fritz-tools"
@@ -15,59 +25,62 @@ msgid ""
 msgstr ""
 
 #: ../../index.rst:6
-msgid "fritzflash.sh"
+msgid "Flashing Gluon"
 msgstr ""
 
-#: ../../index.rst:15
+#: ../../index.rst:16
 msgid "Supported Devices"
 msgstr ""
 
-#: ../../index.rst:17
+#: ../../index.rst:18
 msgid ""
 "These devices are confirmed working using the tools provided in this "
 "repository."
 msgstr ""
 
-#: ../../index.rst:19
+#: ../../index.rst:20
 msgid "FRITZ!Box 3370"
 msgstr ""
 
-#: ../../index.rst:20
+#: ../../index.rst:21
 msgid "FRITZ!Box 4020"
 msgstr ""
 
-#: ../../index.rst:21
+#: ../../index.rst:22
 msgid "FRITZ!Box 4040"
 msgstr ""
 
-#: ../../index.rst:22
+#: ../../index.rst:23
 msgid "FRITZ!WLAN Repeater 450E"
 msgstr ""
 
-#: ../../index.rst:23
+#: ../../index.rst:24
 msgid "FRITZ!WLAN Repeater 1750E"
 msgstr ""
 
-#: ../../index.rst:26
+#: ../../index.rst:27
 msgid "License"
 msgstr ""
 
-#: ../../index.rst:28
+#: ../../index.rst:29
 msgid "See LICENCE_"
 msgstr ""
 
-#: ../../index.rst:33
+#: ../../index.rst:34
 msgid "Indices and tables"
 msgstr ""
 
-#: ../../index.rst:35
+#: ../../index.rst:36
 msgid ":ref:`genindex`"
 msgstr ""
 
-#: ../../index.rst:36
+#: ../../index.rst:37
 msgid ":ref:`modindex`"
 msgstr ""
 
-#: ../../index.rst:37
+#: ../../index.rst:38
 msgid ":ref:`search`"
 msgstr ""
+
+#~ msgid "fritzflash.sh"
+#~ msgstr ""
