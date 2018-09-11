@@ -17,7 +17,6 @@ Supported Devices
 
 These devices are confirmed working using the tools provided in this repository.
 
- - FRITZ!Box 3370
  - FRITZ!Box 4020
  - FRITZ!Box 4040
  - FRITZ!WLAN Repeater 450E
