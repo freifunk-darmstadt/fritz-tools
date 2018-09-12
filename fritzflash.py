@@ -103,7 +103,9 @@ def finish_message():
           "Your device is now running Gluon.\n"
           "It will restart and in 2-5 minutes you will be able to visit it's config-mode.\n"
           "Remember to reconfigure your interface to automatically obtain an IP-address!\n"
-          "You can reach config-mode by typing in http://192.168.1.1/ in your preferred Webbrowser.")
+          "You can reach config-mode by typing in http://192.168.1.1/ in your preferred Webbrowser.\n"
+    print("Press any key to exit.")
+    input()
 
 
 def retry_status(current_try, max_try):
@@ -180,6 +182,8 @@ def autoload_image(ip):
     if image_name is None:
         print("\nAutomatic image-selection unsuccessful!")
         print("-> Unknown Model %s!" % env["HWRevision"])
+        print("Press any key to exit.")
+        input()
         exit(1)
 
     dir_content = os.listdir(os.getcwd())
@@ -198,12 +202,16 @@ def autoload_image(ip):
         for file in files:
             print("--> %s" % file)
         print("\nPlease specify the image via `--image` parameter.")
+        print("Press any key to exit.")
+        input()
         exit(1)
 
     if len(files) is 0:
         print("\nAutomatic image-selection unsuccessful!")
         print("--> No potential image file found!")
         print("\nPlease download and specify the image via `--image` parameter.")
+        print("Press any key to exit.")
+        input()
         exit(1)
 
     print("-> Automatic image-selection successful!")
@@ -219,9 +227,13 @@ def perform_flash(ip, file):
         ftp = FritzFTP(ip, timeout=FTP_TIMEOUT, max_retry=FTP_MAX_RETRY, retry_cb=retry_status)
     except FritzFTP.ConnectionTimeout:
         print("-> Max retrys exceeded! Check connection and try again.")
+        print("Press any key to exit.")
+        input()
         exit(1)
     except ConnectionRefusedError:
         connection_refused_message()
+        print("Press any key to exit.")
+        input()
         exit(1)
 
     print("-> Flash image")
@@ -265,6 +277,8 @@ if __name__ == '__main__':
 
         if ip is None:
             print("\nAutodiscovery failed!")
+            print("Press any key to exit.")
+            input()
             exit(1)
 
         print("\nAutodiscovery succesful!")
