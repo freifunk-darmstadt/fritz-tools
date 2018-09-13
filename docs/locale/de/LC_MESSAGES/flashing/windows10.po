@@ -1,0 +1,189 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2018, Freifunk Darmstadt
+# This file is distributed under the same license as the fritz-tools
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fritz-tools\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-13 21:39+0200\n"
+"PO-Revision-Date: 2018-09-13 21:41+0200\n"
+"Last-Translator: \n"
+"Language: de_DE\n"
+"Language-Team: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+"X-Generator: Poedit 2.1.1\n"
+
+#: ../../flashing/windows10.rst:2
+msgid "Flash Gluon using Windows 10"
+msgstr "Installation von Gluon mittels Windows 10"
+
+#: ../../flashing/windows10.rst:4
+msgid "Your router can be flashed in a few easy step from Windows 10."
+msgstr ""
+"Dein Router kann in ein paar einfachen Schritten mit Windows 10 installiert "
+"werden."
+
+#: ../../flashing/windows10.rst:7
+msgid "Preperation"
+msgstr "Vorbereitung"
+
+#: ../../flashing/windows10.rst:9
+msgid ""
+"First you need to download the image for your device from your local Freifunk "
+"community. This is important to do right now as you will have no ability to "
+"do so later on."
+msgstr ""
+"Lade zuerst das Image für dein Gerät bei deiner lokalen Freifunk-Community "
+"herunter. Es ist wichtig dies jetzt zu tun, da du später keine Möglichkeit "
+"dafür hast."
+
+#: ../../flashing/windows10.rst:13
+msgid "Download Python 3 for Windows"
+msgstr "Python 3 für Windows herunterladen"
+
+#: ../../flashing/windows10.rst:15
+msgid ""
+"Download and install the latest version of Python 3. It can be obtained from "
+"the website_ of the Python project."
+msgstr ""
+"Lade die aktuellste Version von Python 3 herunter und installiere diese. Die "
+"nötige Installationsdatei findest du auf der website_ des Python Projektes."
+
+#: ../../flashing/windows10.rst:20
+msgid "Download the flash-script"
+msgstr "Lade das Flash-Skript herunter"
+
+#: ../../flashing/windows10.rst:22
+msgid ""
+"Download the latest version of the flash-script ``fritzflash.py`` at the link "
+"below. In case you are prompted whether you want to save or open this file, "
+"select save."
+msgstr ""
+"Lade die aktuellste Version des Flash-Skripts ``fritzflash.py`` über den Link "
+"unten herunter. Falls du gefragt wirst, ob du die Datei Öffnen oder Speichern "
+"möchtest, wähle Speichern aus."
+
+#: ../../flashing/windows10.rst:24
+msgid "fritzflash.py_"
+msgstr ""
+
+#: ../../flashing/windows10.rst:30
+msgid "Disable WiFi"
+msgstr "WLAN deaktivieren"
+
+#: ../../flashing/windows10.rst:32
+msgid ""
+"In case your computer is connected via WiFi, make sure to disable this "
+"connection by opening the Quick-settings in the lower right corner. Make sure "
+"WiFi is disabled there."
+msgstr ""
+"Falls dein Computer über eine WLAN-Verbindung verfügt, stelle sicher diese zu "
+"deaktivieren. Öffne dafür die Schnelleinstellungen in der unteren rechten "
+"Ecke. Stelle sicher dass WLAN dort deaktiviert ist."
+
+#: ../../flashing/windows10.rst:37
+msgid "Configuring a static IP-address"
+msgstr "Stelle eine statische IP-Adresse ein"
+
+#: ../../flashing/windows10.rst:39
+msgid ""
+"Open the network settings by opening Quick-settings and navigate to the "
+"``Network and Sharing Center.``"
+msgstr ""
+"Öffne die Netzwerkeinstellungen indem du in den Schnelleinstellungen in das "
+"``Netzwerk und Freigabecenter`` navigierst."
+
+#: ../../flashing/windows10.rst:43
+msgid "Go to the ``Network Adapter Settings``."
+msgstr "Gehe in die ``Adapteroptionen``."
+
+#: ../../flashing/windows10.rst:47
+msgid "Select the adapter called ``Ethernet``."
+msgstr "Wähle den Adapter mit dem Namen ``Ethernet`` aus."
+
+#: ../../flashing/windows10.rst:51
+msgid "In the adapter-status window, select properties."
+msgstr "Wähle im Adapter-Status Fenster ``Eigenschaften`` aus"
+
+#: ../../flashing/windows10.rst:55
+msgid "Double-click on ``Internet Protocol Version 4``."
+msgstr "Doppelklick auf ``Internetprotokoll, Version 4 (TCP/IPv4)``."
+
+#: ../../flashing/windows10.rst:59
+msgid ""
+"Fill out all fields as seen on the image below. Close afterwards both windows "
+"by clicking ``OK``."
+msgstr ""
+"Fülle alle Felder wie auf dem unteren Bild erkennbar. Schließe anschließend "
+"beide Fenster mit einem klick auf ``OK``."
+
+#: ../../flashing/windows10.rst:65
+msgid "Install Gluon"
+msgstr "Gluon installieren"
+
+#: ../../flashing/windows10.rst:67
+msgid "Now move both fritzflash.py and the Gluon image in an empty directory."
+msgstr ""
+"Verschiebe nun sowohl das Flash-Skript fritzflash.py als auch das Gluon-Image "
+"in einen leeren Ordner."
+
+#: ../../flashing/windows10.rst:69
+msgid ""
+"It is important both files are located in the same directory. Otherwise the "
+"process won't work."
+msgstr ""
+"Es ist wichtig, dass beide Dateien sich im selben Verzeichnis befinden. "
+"Andernfalls funktioniert der Prozess nicht."
+
+#: ../../flashing/windows10.rst:73
+msgid ""
+"Connect the router with your computer. In case it has multiple ports, use the "
+"yellow LAN-ports."
+msgstr ""
+"Verbinde den Router mit deinem Computer. Sollte dein Router mehrere Ports "
+"haben, benutze die gelben LAN-Ports."
+
+#: ../../flashing/windows10.rst:75
+msgid "Execute the flash-script by double-clicking on ``fritzflash.py``."
+msgstr "Führe das Flash-Skript mit einem doppelklick auf ``fritzflash.py`` aus."
+
+#: ../../flashing/windows10.rst:77
+msgid ""
+"In case Windows Firewall asks you whether you want to allow or deny network "
+"activity, select ``Allow``."
+msgstr ""
+"Falls die Windows Firewall nachfragt, ob Netzwerkaktivität Zugelassen oder "
+"Nicht zugelassen werden soll, wähle ``Zugriff zulassen`` aus."
+
+#: ../../flashing/windows10.rst:83
+msgid "Revert network settings"
+msgstr "Wiederherstellen der Netzwerkeinstellungen"
+
+#: ../../flashing/windows10.rst:85
+msgid ""
+"Before you are able to reach the Config-mode of your new node you have to "
+"reconfigure your network interface to automatically obtain an IP-address "
+"using DHCP."
+msgstr ""
+"Bevor du den Konfigurationsmodus deines neuen Freifunk-Knotens erreichen "
+"kannst, musst du die Netzwerkeinstellungen wieder zurückstellen, damit du "
+"mittels DHCP automatisch eine IP-Adresse bekommst."
+
+#: ../../flashing/windows10.rst:87
+msgid ""
+"Configure your network interface interface as pictured on the screenshot "
+"below and confirm by selecting ``OK`` in both windows."
+msgstr ""
+"Stelle dein Netzwerk wie im folgenden Screenshot erkennbar ein und bestätige "
+"beide Fenster mit Klick auf ``OK``."
+
+#: ../../flashing/windows10.rst:91
+msgid "Also remember to turn on your WiFi again."
+msgstr "Denke auch daran, dein WLAN wieder einzuschalten."

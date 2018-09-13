@@ -8,6 +8,7 @@ This is a collection of useful scripts, primarily for use with the bootloader of
    :caption: Flashing Gluon
 
    flashing/general
+   flashing/windows10
    flashing/macos
    flashing/ubuntu_1804
 

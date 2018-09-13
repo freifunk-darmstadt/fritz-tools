@@ -10,7 +10,3 @@ Gluon builds by default factory and sysupgrade images. AVM devices don't need sp
 
 Exceptions apply for the FRITZ!Box 4040. This device needs a special bootloader-image for use with the flash-script. Flashing with a sysupgrade image won't work.
 
-Windows compatibility
----------------------
-
-As Windows compatibility is not yet tested nor documented, the currently recommended way is using a live-version of Ubuntu.

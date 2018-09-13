@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-08-21 21:58+0200\n"
+"POT-Creation-Date: 2018-09-12 23:52+0200\n"
 "PO-Revision-Date: 2018-08-21 21:58+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,21 +33,17 @@ msgstr ""
 msgid "Flashing Gluon"
 msgstr "Gluon flashen"
 
-#: ../../index.rst:16
+#: ../../index.rst:17
 msgid "Supported Devices"
 msgstr "Unterstützte Geräte"
 
-#: ../../index.rst:18
+#: ../../index.rst:19
 msgid ""
 "These devices are confirmed working using the tools provided in this "
 "repository."
 msgstr ""
 "Die Werkzeuge in diesem Repository wurden mit den folgenden Geräten "
 "getestet."
-
-#: ../../index.rst:20
-msgid "FRITZ!Box 3370"
-msgstr ""
 
 #: ../../index.rst:21
 msgid "FRITZ!Box 4020"
@@ -91,3 +87,7 @@ msgstr ""
 
 #~ msgid "fritzflash.sh"
 #~ msgstr ""
+
+#~ msgid "FRITZ!Box 3370"
+#~ msgstr ""
+
