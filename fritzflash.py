@@ -103,7 +103,7 @@ def finish_message():
           "Your device is now running Gluon.\n"
           "It will restart and in 2-5 minutes you will be able to visit it's config-mode.\n"
           "Remember to reconfigure your interface to automatically obtain an IP-address!\n"
-          "You can reach config-mode by typing in http://192.168.1.1/ in your preferred Webbrowser.\n"
+          "You can reach config-mode by typing in http://192.168.1.1/ in your preferred Webbrowser.\n")
     print("Press any key to exit.")
     input()
 
