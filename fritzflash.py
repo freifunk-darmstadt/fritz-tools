@@ -3,6 +3,7 @@ import argparse
 import ipaddress
 import os
 import socket
+import sys
 import time
 from ftplib import FTP
 
@@ -112,7 +113,7 @@ def retry_status(current_try, max_try):
     print("--> Try %d of %d" % (current_try, max_try))
 
 
-def autodiscover_avm_ip():
+def autodiscover_avm_ip(interface=None):
     sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sender.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sender.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -121,6 +122,26 @@ def autodiscover_avm_ip():
     receiver = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     receiver.settimeout(AUTODISCOVER_TIMEOUT)
     receiver.bind(('0.0.0.0', 5035))
+
+    if sys.platform.startswith('linux'):
+        # Linux specific code
+        if not interface:
+            # Get a list of all available ethernet interfaces
+            interface = None
+            interfaces = [i for i in os.listdir('/sys/class/net/') if i.startswith("e")]
+
+            if len(interfaces) >= 1:
+                interface = interfaces[0]
+
+            if len(interfaces) > 1:
+                print("-> Your computer seems to have multiple wired interfaces.")
+                print("--> You need to specify the interface your Box is connected to using the --interface option.")
+                interface = None
+                pass
+
+        if interface:
+            print(f"--> Binding to {interface}.")
+            receiver.setsockopt(socket.SOL_SOCKET, socket.SO_BINDTODEVICE, str(interface + '\0').encode('utf-8'))
 
     i = 1
     while True:
@@ -251,6 +272,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Flash Gluon image to AVM devices using EVA.')
     parser.add_argument('--ip', type=str, help='IP Address of device. Autodiscovery if not specified.')
     parser.add_argument('--image', type=str, help='Image file to transfer.')
+    parser.add_argument('--interface', type=str, help='Network interface the AVM device is connected to.')
     args = parser.parse_args()
 
     imagefile = None
@@ -275,7 +297,7 @@ if __name__ == '__main__':
     ip = args.ip
     if ip is None:
         print("Trying to autodiscover! Abort via Ctrl-c.")
-        ip = autodiscover_avm_ip()
+        ip = autodiscover_avm_ip(interface=args.interface)
 
         if ip is None:
             print("\nAutodiscovery failed!")
