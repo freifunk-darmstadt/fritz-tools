@@ -228,7 +228,7 @@ def perform_flash(ip, file):
     try:
         ftp = FritzFTP(ip, timeout=FTP_TIMEOUT, max_retry=FTP_MAX_RETRY, retry_cb=retry_status)
     except FritzFTP.ConnectionTimeout:
-        print("-> Max retrys exceeded! Check connection and try again.")
+        print("-> Max retries exceeded! Check connection and try again.")
         print("Press any key to exit.")
         input()
         exit(1)
