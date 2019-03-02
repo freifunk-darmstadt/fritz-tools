@@ -88,6 +88,17 @@ msgstr ""
 "deaktivieren. Öffne dafür die Schnelleinstellungen in der unteren rechten "
 "Ecke. Stelle sicher dass WLAN dort deaktiviert ist."
 
+msgid "Disable network adaptors"
+msgstr "Netzwerkschnittstellen deaktivieren"
+
+msgid ""
+"In case your computer has multiple network adaptors, disabling all but the "
+"adaptor the router is connected to might fix autodetection problems."
+msgstr ""
+"Sollte dein Computer über mehrere Netzwerkschnittstellen verfügen, so kann das "
+"deaktivieren von zum Flashvorgang nicht benötigten Shnittstellen probleme bei der "
+"automatischen Erkennung lösen."
+
 #: ../../flashing/windows10.rst:37
 msgid "Configuring a static IP-address"
 msgstr "Stelle eine statische IP-Adresse ein"
@@ -185,5 +196,7 @@ msgstr ""
 "beide Fenster mit Klick auf ``OK``."
 
 #: ../../flashing/windows10.rst:91
-msgid "Also remember to turn on your WiFi again."
-msgstr "Denke auch daran, dein WLAN wieder einzuschalten."
+msgid "Also remember to turn on your WiFi and re-enable disabled adaptors."
+msgstr ""
+"Denke auch daran, dein WLAN wieder einzuschalten und gegebenenfalls "
+"deaktivierte Netzwerkschnittstellen wieder zu aktivieren."
