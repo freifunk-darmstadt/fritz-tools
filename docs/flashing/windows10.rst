@@ -33,6 +33,14 @@ In case your computer is connected via WiFi, make sure to disable this connectio
 
 .. image:: windows10_step_1.png
 
+
+Disable network adaptors
+------------------------
+
+In case your computer has multiple network adaptors, disabling all but the adaptor the router is connected to might fix autodetection problems.
+
+.. image:: windows10_network_adaptors.png
+
 Configuring a static IP-address
 -------------------------------
 
@@ -88,4 +96,4 @@ Configure your network interface interface as pictured on the screenshot below a
 
 .. image:: windows10_step_9.png
 
-Also remember to turn on your WiFi again.
+Also remember to turn on your WiFi and re-enable disabled adaptors.
