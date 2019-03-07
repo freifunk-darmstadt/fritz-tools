@@ -84,6 +84,7 @@ def start_message(ip_address):
     print("DNS Servers: Leave blank\n")
     print("Once you're done, disconnect power from your AVM device, reconnect the power-supply and press enter.")
 
+
 def connect_message():
     print("We will now connect to your devices bootloader.")
 
@@ -147,14 +148,48 @@ def autodiscover_avm_ip():
 
 def determine_image_name(env_string):
     models = {
-        "173": "avm-fritz-wlan-repeater-300e-sysupgrade.bin",
-        "200": "avm-fritz-wlan-repeater-450e-sysupgrade.bin",
-        "219": "avm-fritz-box-4020-sysupgrade.bin",
-        "227": "avm-fritz-box-4040-bootloader.bin"
+        "173": {
+            "gluon": [
+                "avm-fritz-wlan-repeater-300e-sysupgrade.bin"
+            ],
+            "openwrt": [
+                "fritz300e-squashfs-sysupgrade.bin"
+            ],
+        },
+        "200": {
+            "gluon": [
+                "avm-fritz-wlan-repeater-450e-sysupgrade.bin"
+            ],
+            "openwrt": [
+                "fritz450e-squashfs-sysupgrade.bin"
+            ]
+        },
+        "219": {
+            "gluon": [
+                "avm-fritz-box-4020-sysupgrade.bin"
+            ],
+            "openwrt": [
+                "fritz4020-squashfs-sysupgrade.bin",
+                "avm_fritz4020-squashfs-sysupgrade.bin"
+            ]
+        },
+        "227": {
+            "gluon": [
+                "avm-fritz-box-4040-bootloader.bin"
+            ],
+            "openwrt": [
+                "avm_fritzbox-4040-squashfs-eva.bin"
+            ]
+        }
     }
     for model in models.keys():
         if model == env_string:
-            return models[model]
+            image_names = []
+            if "gluon" in models[model]:
+                image_names += models[model]["gluon"]
+            if "openwrt" in models[model]:
+                image_names += models[model]["openwrt"]
+            return image_names
     return None
 
 
@@ -179,9 +214,9 @@ def autoload_image(ip):
         print("-> No model saved on device!")
         exit(1)
 
-    image_name = determine_image_name(env["HWRevision"])
+    image_names = determine_image_name(env["HWRevision"])
 
-    if image_name is None:
+    if image_names is None:
         print("\nAutomatic image-selection unsuccessful!")
         print("-> Unknown Model %s!" % env["HWRevision"])
         print("Press any key to exit.")
@@ -195,8 +230,9 @@ def autoload_image(ip):
         file = os.path.join(cwd, file)
         if not os.path.isfile(file):
             continue
-        if image_name in file:
-            files.append(file)
+        for image_name in image_names:
+            if image_name in file:
+                files.append(file)
 
     if len(files) > 1:
         print("\nAutomatic image-selection unsuccessful!")
