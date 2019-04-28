@@ -82,7 +82,7 @@ def start_message(ip_address):
     print("Subnet: 255.255.255.0")
     print("Gateway: %s" % str(ipaddress.ip_address(ip_address)))
     print("DNS Servers: Leave blank\n")
-    print("Once you're done, disconnect power from your AVM device, reconnect the power-supply and press enter.")
+    print("Once you're done, press enter, disconnect power from your AVM device and reconnect the power-supply.")
 
 
 def connect_message():
