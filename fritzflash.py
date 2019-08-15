@@ -31,6 +31,9 @@ class FritzFTP(FTP):
             raise FritzFTP.ConnectionTimeout()
         self.set_pasv(True)
 
+    def setenv(self, env, val):
+        self.sendcmd('SETENV linux_fs_start 0')
+
     def getenv(self):
         env = [b'']
         fritzenv = {}
@@ -44,8 +47,11 @@ class FritzFTP(FTP):
         except socket.timeout:
             pass
 
-        for line in env[0].decode('ascii').splitlines():
+        env_lines = env[0].decode('ascii', 'replace').splitlines()
+        for line in env_lines:
             l = line.split()
+            if len(l) != 2:
+                continue
             fritzenv[l[0]] = l[1]
 
         return fritzenv
@@ -57,6 +63,23 @@ class FritzFTP(FTP):
         self.set_flash_timeout()
         self.voidcmd('MEDIA FLSH')
         self.storbinary('STOR mtd1', image)
+
+    def boot_image(self, image, offset=None):
+        image.seek(0, 2)
+        size = image.tell()
+        image.seek(0)
+
+        if offset:
+            addr = size
+            haddr = offset
+        else:
+            addr = ((0x8000000 - size) & ~0xfff)
+            haddr = 0x80000000 + addr
+
+        self.voidcmd('SETENV memsize 0x%08x' % (addr))
+        self.voidcmd('SETENV kernel_args_tmp mtdram1=0x%08x,0x88000000' % (haddr))
+        self.voidcmd('MEDIA SDRAM')
+        self.storbinary('STOR 0x%08x 0x88000000' % (haddr), image)
 
     def reboot(self):
         self.voidcmd('REBOOT')
@@ -201,32 +224,14 @@ def determine_image_name(env_string):
     return None
 
 
-def autoload_image(ip):
+def autoload_image(model):
     print("\nStarting automatic image-selection!")
-    print("-> Establishing connection to device!")
 
-    try:
-        ftp = FritzFTP(ip, timeout=FTP_TIMEOUT, max_retry=FTP_MAX_RETRY, retry_cb=retry_status)
-    except FritzFTP.ConnectionTimeout:
-        print("-> Max retrys exceeded! Check connection and try again.")
-        exit(1)
-    except ConnectionRefusedError:
-        connection_refused_message()
-        exit(1)
-
-    env = ftp.getenv()
-    ftp.close()
-
-    if 'HWRevision' not in env:
-        print("\nAutomatic image-selection unsuccessful!")
-        print("-> No model saved on device!")
-        exit(1)
-
-    image_names = determine_image_name(env["HWRevision"])
+    image_names = determine_image_name(model)
 
     if image_names is None:
         print("\nAutomatic image-selection unsuccessful!")
-        print("-> Unknown Model %s!" % env["HWRevision"])
+        print("-> Unknown Model %s!" % model)
         print("Press any key to exit.")
         input()
         exit(1)
@@ -266,22 +271,21 @@ def autoload_image(ip):
     return open(files[0], 'rb')
 
 
-def perform_flash(ip, file):
-    print("-> Establishing connection to device!")
+def detect_model(ftp):
+    print("\nStarting model detection!")
+    '''
+    env = ftp.getenv()
 
-    try:
-        ftp = FritzFTP(ip, timeout=FTP_TIMEOUT, max_retry=FTP_MAX_RETRY, retry_cb=retry_status)
-    except FritzFTP.ConnectionTimeout:
-        print("-> Max retries exceeded! Check connection and try again.")
-        print("Press any key to exit.")
-        input()
-        exit(1)
-    except ConnectionRefusedError:
-        connection_refused_message()
-        print("Press any key to exit.")
-        input()
-        exit(1)
+    if 'HWRevision' not in env:
+        print("\nModel detection unsuccessful!")
+        print("-> No model saved on device!")
+        return None
 
+    return env["HWRevision"]
+    '''
+    return "209"
+
+def perform_flash(ftp, file):
     print("-> Flash image")
     flash_message()
     ftp.upload_image(file)
@@ -289,6 +293,17 @@ def perform_flash(ip, file):
     print("-> Performing reboot")
     ftp.reboot()
     finish_message()
+
+
+def perform_ramboot(ftp, file, model):
+    print("-> Select correct partition to boot")
+
+    ftp.setenv("linux_fs_start", "1")
+
+    print("-> Upload image")
+    flash_message()
+    ftp.boot_image(file)
+    print("-> Image upload successful")
 
 
 if __name__ == '__main__':
@@ -330,8 +345,30 @@ if __name__ == '__main__':
         print("\nAutodiscovery succesful!")
         print("-> Device detected at %s." % ip)
 
+    print("-> Establishing connection to device!")
+
+    try:
+        ftp = FritzFTP(ip, timeout=FTP_TIMEOUT, max_retry=FTP_MAX_RETRY, retry_cb=retry_status)
+    except FritzFTP.ConnectionTimeout:
+        print("-> Max retries exceeded! Check connection and try again.")
+        print("Press any key to exit.")
+        input()
+        exit(1)
+    except ConnectionRefusedError:
+        connection_refused_message()
+        print("Press any key to exit.")
+        input()
+        exit(1)
+
+    model = detect_model(ftp)
+
     if args.image is None:
         # Try to automatically locate an image to use
-        imagefile = autoload_image(ip)
+        imagefile = autoload_image(model)
 
-    perform_flash(ip, imagefile)
+    if model == "209":
+        # initramfs
+        perform_ramboot(ftp, imagefile, model)
+    else:
+        # sysupgrade
+        perform_flash(ftp, imagefile)
