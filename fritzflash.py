@@ -156,6 +156,14 @@ def determine_image_name(env_string):
                 "fritz300e-squashfs-sysupgrade.bin"
             ],
         },
+        "189": {
+            "gluon": [
+                "avm-fritz-box-7312-sysupgrade.bin"
+            ],
+            "openwrt": [
+                "avm_fritz7312-squashfs-sysupgrade.bin"
+            ],
+        },
         "200": {
             "gluon": [
                 "avm-fritz-wlan-repeater-450e-sysupgrade.bin"
