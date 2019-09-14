@@ -92,8 +92,8 @@ def connect_message():
 def flash_message():
     print("\nWriting Gluon image to your AVM device...\n"
           "This process may take a lot of time.\n\n"
-          "First, the device will erase it's current Operating System.\n"
-          "Next, the device will write the Gluon image to it's memory.\n"
+          "First, the device will erase its current Operating System.\n"
+          "Next, the device will write the Gluon image to its memory.\n"
           "The red Info LED will illuminate in this step. Don't worry, this is expected behavior.\n\n"
           "Do *not* turn of the device!\n\n"
           "We will tell you when your device has finished installing Gluon (this may take a while).")
@@ -102,7 +102,7 @@ def flash_message():
 def finish_message():
     print("\n== Congratulations! ==\n\n"
           "Your device is now running Gluon.\n"
-          "It will restart and in 2-5 minutes you will be able to visit it's config-mode.\n"
+          "It will restart and in 2-5 minutes you will be able to visit its config-mode.\n"
           "Remember to reconfigure your interface to automatically obtain an IP-address!\n"
           "You can reach config-mode by typing in http://192.168.1.1/ in your preferred Webbrowser.\n")
     print("Press any key to exit.")
