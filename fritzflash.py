@@ -252,7 +252,7 @@ def autoload_image(ip):
         input()
         exit(1)
 
-    if len(files) is 0:
+    if not files:
         print("\nAutomatic image-selection unsuccessful!")
         print("--> No potential image file found!")
         print("\nPlease download and specify the image via `--image` parameter.")
