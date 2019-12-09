@@ -21,6 +21,8 @@ These devices are confirmed working using the tools provided in this repository.
  - FRITZ!Box 4020
  - FRITZ!Box 4040
  - FRITZ!Box 7312
+ - FRITZ!Box 7360 (v1, v2)
+ - FRITZ!Box 7360 SL
  - FRITZ!WLAN Repeater 300E
  - FRITZ!WLAN Repeater 450E
  - FRITZ!WLAN Repeater 1750E
