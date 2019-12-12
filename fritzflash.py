@@ -148,12 +148,28 @@ def autodiscover_avm_ip():
 
 def determine_image_name(env_string):
     models = {
+        "172": {
+            "gluon": [
+                "avm-fritz-box-7320-sysupgrade.bin"
+            ],
+            "openwrt": [
+                "avm_fritz7320-squashfs-sysupgrade.bin"
+            ],
+        },
         "173": {
             "gluon": [
                 "avm-fritz-wlan-repeater-300e-sysupgrade.bin"
             ],
             "openwrt": [
                 "fritz300e-squashfs-sysupgrade.bin"
+            ],
+        },
+        "179": {
+            "gluon": [
+                "avm-fritz-box-7330-sysupgrade.bin"
+            ],
+            "openwrt": [
+                "avm_fritz7320-squashfs-sysupgrade.bin"
             ],
         },
         "181": {
@@ -170,6 +186,14 @@ def determine_image_name(env_string):
             ],
             "openwrt": [
                 "avm_fritz7360sl-squashfs-sysupgrade.bin"
+            ],
+        },
+        "188": {
+            "gluon": [
+                "avm-fritz-box-7330-sl-sysupgrade.bin"
+            ],
+            "openwrt": [
+                "avm_fritz7320-squashfs-sysupgrade.bin"
             ],
         },
         "189": {
