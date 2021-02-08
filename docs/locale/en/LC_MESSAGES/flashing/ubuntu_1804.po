@@ -108,26 +108,33 @@ msgid ""
 "Terminal window you left open."
 msgstr ""
 
-#: ../../flashing/ubuntu_1804.rst:65
-msgid "Revert network settings"
+#: ../../flashing/ubuntu_1804.rst:61
+msgid ""
+"In case you missed the 10 second window after powering on your AVM device"
+" power cycle it again."
 msgstr ""
 
 #: ../../flashing/ubuntu_1804.rst:67
+msgid "Revert network settings"
+msgstr ""
+
+#: ../../flashing/ubuntu_1804.rst:69
 msgid ""
 "Before you are able to reach the Config-mode of your new node you have to"
 " reconfigure your network interface to automatically obtain an IP-address"
 " using DHCP."
 msgstr ""
 
-#: ../../flashing/ubuntu_1804.rst:69
+#: ../../flashing/ubuntu_1804.rst:71
 msgid ""
 "Configure your network interface interface as pictured on the screenshot "
 "below and confirm by selecting ``Apply``."
 msgstr ""
 
-#: ../../flashing/ubuntu_1804.rst:73
+#: ../../flashing/ubuntu_1804.rst:75
 msgid ""
 "You will (again) need to deactivate and reactivate the Network interface "
 "to correctly apply the settings. Do so by turning the connection from On "
 "to Off. Wait two seconds and turn the connection back On again."
 msgstr ""
+

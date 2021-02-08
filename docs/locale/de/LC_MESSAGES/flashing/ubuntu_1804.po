@@ -133,11 +133,18 @@ msgstr ""
 "Führe das Flashskript mittels ``python3 fritzflash.py`` im Terminal-"
 "Fenster, welches du offen gelassen hast, aus."
 
-#: ../../flashing/ubuntu_1804.rst:65
+#: ../../flashing/ubuntu_1804.rst:61
+msgid ""
+"In case you missed the 10 second window after powering on your AVM device"
+" power cycle it again."
+msgstr "Falls du das 10 Sekunden Zeitfenster nach dem Start verpasst hast starte das AVM Gerät "
+"jetzt nocheinmal neu.""
+
+#: ../../flashing/ubuntu_1804.rst:67
 msgid "Revert network settings"
 msgstr "Wiederherstellen der Netzwerkeinstellungen"
 
-#: ../../flashing/ubuntu_1804.rst:67
+#: ../../flashing/ubuntu_1804.rst:69
 msgid ""
 "Before you are able to reach the Config-mode of your new node you have "
 "to reconfigure your network interface to automatically obtain an IP-"
@@ -147,7 +154,7 @@ msgstr ""
 "kannst, musst du die Netzwerkeinstellungen wieder zurückstellen, damit "
 "du mittels DHCP automatisch eine IP-Adresse bekommst."
 
-#: ../../flashing/ubuntu_1804.rst:69
+#: ../../flashing/ubuntu_1804.rst:71
 msgid ""
 "Configure your network interface interface as pictured on the screenshot "
 "below and confirm by selecting ``Apply``."
@@ -155,7 +162,7 @@ msgstr ""
 "Stelle dein Netzwerk wie im folgenden Screenshot erkennbar ein und "
 "bestätige mit Klick auf ``Anwenden``."
 
-#: ../../flashing/ubuntu_1804.rst:73
+#: ../../flashing/ubuntu_1804.rst:75
 msgid ""
 "You will (again) need to deactivate and reactivate the Network interface "
 "to correctly apply the settings. Do so by turning the connection from On "
@@ -164,3 +171,4 @@ msgstr ""
 "Du musst (wieder) die Einstellungen durch Aus- und Wiedereinschalten des "
 "Netzwerkes übernehmen. Schalte das Netzwerk aus, warte zwei Sekunden und "
 "schalte es wieder ein."
+

@@ -162,11 +162,18 @@ msgstr ""
 "Falls die Windows Firewall nachfragt, ob Netzwerkaktivität Zugelassen oder "
 "Nicht zugelassen werden soll, wähle ``Zugriff zulassen`` aus."
 
-#: ../../flashing/windows10.rst:83
+#: ../../flashing/windows10.rst:79
+msgid ""
+"In case you missed the 10 second window after powering on your AVM device"
+" power cycle it again."
+msgstr "Falls du das 10 Sekunden Zeitfenster nach dem Start verpasst hast starte das AVM Gerät "
+"jetzt nocheinmal neu.""
+
+#: ../../flashing/windows10.rst:85
 msgid "Revert network settings"
 msgstr "Wiederherstellen der Netzwerkeinstellungen"
 
-#: ../../flashing/windows10.rst:85
+#: ../../flashing/windows10.rst:87
 msgid ""
 "Before you are able to reach the Config-mode of your new node you have to "
 "reconfigure your network interface to automatically obtain an IP-address "
@@ -176,7 +183,7 @@ msgstr ""
 "kannst, musst du die Netzwerkeinstellungen wieder zurückstellen, damit du "
 "mittels DHCP automatisch eine IP-Adresse bekommst."
 
-#: ../../flashing/windows10.rst:87
+#: ../../flashing/windows10.rst:89
 msgid ""
 "Configure your network interface interface as pictured on the screenshot "
 "below and confirm by selecting ``OK`` in both windows."
@@ -184,6 +191,7 @@ msgstr ""
 "Stelle dein Netzwerk wie im folgenden Screenshot erkennbar ein und bestätige "
 "beide Fenster mit Klick auf ``OK``."
 
-#: ../../flashing/windows10.rst:91
+#: ../../flashing/windows10.rst:93
 msgid "Also remember to turn on your WiFi again."
 msgstr "Denke auch daran, dein WLAN wieder einzuschalten."
+

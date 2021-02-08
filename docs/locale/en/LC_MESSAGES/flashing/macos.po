@@ -105,19 +105,26 @@ msgstr ""
 msgid "In case you're asked to allow incoming connection or not select ``Allow``."
 msgstr ""
 
-#: ../../flashing/macos.rst:67
-msgid "Revert network settings"
+#: ../../flashing/macos.rst:63
+msgid ""
+"In case you missed the 10 second window after powering on your AVM device"
+" power cycle it again."
 msgstr ""
 
 #: ../../flashing/macos.rst:69
+msgid "Revert network settings"
+msgstr ""
+
+#: ../../flashing/macos.rst:71
 msgid ""
 "Before you are able to reach the Config-mode of your new node you have to"
 " reconfigure your network interface to automatically obtain an IP-address"
 " using DHCP."
 msgstr ""
 
-#: ../../flashing/macos.rst:71
+#: ../../flashing/macos.rst:73
 msgid ""
 "Configure your ``Ethernet`` interface as pictured on the screenshot below"
 " and confirm by selecting ``Apply``."
 msgstr ""
+

@@ -1,0 +1,164 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 1980, Freifunk Darmstadt
+# This file is distributed under the same license as the fritz-tools
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fritz-tools \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 1980-01-01 00:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: ../../flashing/windows10.rst:2
+msgid "Flash Gluon using Windows 10"
+msgstr ""
+
+#: ../../flashing/windows10.rst:4
+msgid "Your router can be flashed in a few easy step from Windows 10."
+msgstr ""
+
+#: ../../flashing/windows10.rst:7
+msgid "Preperation"
+msgstr ""
+
+#: ../../flashing/windows10.rst:9
+msgid ""
+"First you need to download the image for your device from your local "
+"Freifunk community. This is important to do right now as you will have no"
+" ability to do so later on."
+msgstr ""
+
+#: ../../flashing/windows10.rst:13
+msgid "Download Python 3 for Windows"
+msgstr ""
+
+#: ../../flashing/windows10.rst:15
+msgid ""
+"Download and install the latest version of Python 3. It can be obtained "
+"from the website_ of the Python project."
+msgstr ""
+
+#: ../../flashing/windows10.rst:20
+msgid "Download the flash-script"
+msgstr ""
+
+#: ../../flashing/windows10.rst:22
+msgid ""
+"Download the latest version of the flash-script ``fritzflash.py`` at the "
+"link below. In case you are prompted whether you want to save or open "
+"this file, select save."
+msgstr ""
+
+#: ../../flashing/windows10.rst:24
+msgid "fritzflash.py_"
+msgstr ""
+
+#: ../../flashing/windows10.rst:30
+msgid "Disable WiFi"
+msgstr ""
+
+#: ../../flashing/windows10.rst:32
+msgid ""
+"In case your computer is connected via WiFi, make sure to disable this "
+"connection by opening the Quick-settings in the lower right corner. Make "
+"sure WiFi is disabled there."
+msgstr ""
+
+#: ../../flashing/windows10.rst:37
+msgid "Configuring a static IP-address"
+msgstr ""
+
+#: ../../flashing/windows10.rst:39
+msgid ""
+"Open the network settings by opening Quick-settings and navigate to the "
+"``Network and Sharing Center.``"
+msgstr ""
+
+#: ../../flashing/windows10.rst:43
+msgid "Go to the ``Network Adapter Settings``."
+msgstr ""
+
+#: ../../flashing/windows10.rst:47
+msgid "Select the adapter called ``Ethernet``."
+msgstr ""
+
+#: ../../flashing/windows10.rst:51
+msgid "In the adapter-status window, select properties."
+msgstr ""
+
+#: ../../flashing/windows10.rst:55
+msgid "Double-click on ``Internet Protocol Version 4``."
+msgstr ""
+
+#: ../../flashing/windows10.rst:59
+msgid ""
+"Fill out all fields as seen on the image below. Close afterwards both "
+"windows by clicking ``OK``."
+msgstr ""
+
+#: ../../flashing/windows10.rst:65
+msgid "Install Gluon"
+msgstr ""
+
+#: ../../flashing/windows10.rst:67
+msgid "Now move both fritzflash.py and the Gluon image in an empty directory."
+msgstr ""
+
+#: ../../flashing/windows10.rst:69
+msgid ""
+"It is important both files are located in the same directory. Otherwise "
+"the process won't work."
+msgstr ""
+
+#: ../../flashing/windows10.rst:73
+msgid ""
+"Connect the router with your computer. In case it has multiple ports, use"
+" the yellow LAN-ports."
+msgstr ""
+
+#: ../../flashing/windows10.rst:75
+msgid "Execute the flash-script by double-clicking on ``fritzflash.py``."
+msgstr ""
+
+#: ../../flashing/windows10.rst:77
+msgid ""
+"In case Windows Firewall asks you whether you want to allow or deny "
+"network activity, select ``Allow``."
+msgstr ""
+
+#: ../../flashing/windows10.rst:79
+msgid ""
+"In case you missed the 10 second window after powering on your AVM device"
+" power cycle it again."
+msgstr ""
+
+#: ../../flashing/windows10.rst:85
+msgid "Revert network settings"
+msgstr ""
+
+#: ../../flashing/windows10.rst:87
+msgid ""
+"Before you are able to reach the Config-mode of your new node you have to"
+" reconfigure your network interface to automatically obtain an IP-address"
+" using DHCP."
+msgstr ""
+
+#: ../../flashing/windows10.rst:89
+msgid ""
+"Configure your network interface interface as pictured on the screenshot "
+"below and confirm by selecting ``OK`` in both windows."
+msgstr ""
+
+#: ../../flashing/windows10.rst:93
+msgid "Also remember to turn on your WiFi again."
+msgstr ""
+

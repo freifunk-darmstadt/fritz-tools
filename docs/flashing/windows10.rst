@@ -76,6 +76,8 @@ Execute the flash-script by double-clicking on ``fritzflash.py``.
 
 In case Windows Firewall asks you whether you want to allow or deny network activity, select ``Allow``.
 
+In case you missed the 10 second window after powering on your AVM device power cycle it again.
+
 .. image:: windows10_step_8.png
 
 
