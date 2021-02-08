@@ -60,6 +60,8 @@ Execute the flash-script by executing ``python3 fritzflash.py`` in the Terminal 
 
 In case you're asked to allow incoming connection or not select ``Allow``.
 
+In case you missed the 10 second window after powering on your AVM device power cycle it again.
+
 .. image:: macos_step_7.png
 
 

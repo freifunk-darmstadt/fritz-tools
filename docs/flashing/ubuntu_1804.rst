@@ -58,6 +58,8 @@ Connect the router with your computer. In case it has multiple ports, use the ye
 
 Execute the flash-script by executing ``python3 fritzflash.py`` in the Terminal window you left open.
 
+In case you missed the 10 second window after powering on your AVM device power cycle it again.
+
 .. image:: ubuntu1804_step_7.png
 
 
