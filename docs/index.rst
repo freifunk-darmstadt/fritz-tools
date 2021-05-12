@@ -30,6 +30,11 @@ These devices are confirmed working using the tools provided in this repository.
  - FRITZ!WLAN Repeater 450E
  - FRITZ!WLAN Repeater 1750E
 
+Among others, the following models are currently **not** supported:
+
+- FRITZ!Box 7362 SL
+
+
 License
 -------
 
