@@ -8,14 +8,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-09-12 23:52+0200\n"
+"POT-Creation-Date: 2021-05-12 14:09+0200\n"
 "PO-Revision-Date: 2018-08-21 21:58+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.6.0\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../index.rst:6
+msgid "Flashing Gluon"
+msgstr "Gluon flashen"
 
 #: ../../index.rst:2
 msgid "Welcome to fritz-tools"
@@ -28,10 +32,6 @@ msgid ""
 msgstr ""
 "Dies ist eine Sammlung nützlicher Skripte, hauptsächlich gedacht für die "
 "Benutzung mit dem Bootloader von AVM Geräten."
-
-#: ../../index.rst:6
-msgid "Flashing Gluon"
-msgstr "Gluon flashen"
 
 #: ../../index.rst:17
 msgid "Supported Devices"
@@ -54,34 +54,62 @@ msgid "FRITZ!Box 4040"
 msgstr ""
 
 #: ../../index.rst:23
-msgid "FRITZ!WLAN Repeater 450E"
+msgid "FRITZ!Box 7312"
 msgstr ""
 
 #: ../../index.rst:24
-msgid "FRITZ!WLAN Repeater 1750E"
+msgid "FRITZ!Box 7320"
+msgstr ""
+
+#: ../../index.rst:25
+msgid "FRITZ!Box 7330"
+msgstr ""
+
+#: ../../index.rst:26
+msgid "FRITZ!Box 7330 SL"
 msgstr ""
 
 #: ../../index.rst:27
+msgid "FRITZ!Box 7360 (v1, v2)"
+msgstr ""
+
+#: ../../index.rst:28
+msgid "FRITZ!Box 7360 SL"
+msgstr ""
+
+#: ../../index.rst:29
+msgid "FRITZ!WLAN Repeater 300E"
+msgstr ""
+
+#: ../../index.rst:30
+msgid "FRITZ!WLAN Repeater 450E"
+msgstr ""
+
+#: ../../index.rst:31
+msgid "FRITZ!WLAN Repeater 1750E"
+msgstr ""
+
+#: ../../index.rst:34
 msgid "License"
 msgstr "Lizenz"
 
-#: ../../index.rst:29
+#: ../../index.rst:36
 msgid "See LICENCE_"
 msgstr "Siehe LICENCE_"
 
-#: ../../index.rst:34
+#: ../../index.rst:41
 msgid "Indices and tables"
 msgstr "Index"
 
-#: ../../index.rst:36
+#: ../../index.rst:43
 msgid ":ref:`genindex`"
 msgstr ""
 
-#: ../../index.rst:37
+#: ../../index.rst:44
 msgid ":ref:`modindex`"
 msgstr ""
 
-#: ../../index.rst:38
+#: ../../index.rst:45
 msgid ":ref:`search`"
 msgstr ""
 
