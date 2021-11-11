@@ -75,7 +75,7 @@ def start_message(ip_address):
         "This program will help you installing Gluon, a widely used Firmware for Freifunk networks, onto your AVM device.\n"
         "You can always find the most current version of this script at https://www.github.com/freifunk-darmstadt/fritz-tools\n\n"
         "It is strongly recommended to only connect your computer to the device you want to flash.\n"
-        "Disable all other connections (Ethernet, WiFi/WLAN)!\n\n"
+        "Try to disable all other connections (Ethernet, WiFi/WLAN, VMs) if detection fails.\n\n"
         "Before we start, make sure you have assigned your PC a static IP Address in the Subnet of the device you want to flash.\n"
         "The following example would be a completely fine option:\n")
     print("IP-Address: %s" % str(ipaddress.ip_address(ip_address) + 1))
@@ -115,13 +115,21 @@ def retry_status(current_try, max_try):
 
 def autodiscover_avm_ip():
     sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        sender.bind(('192.168.178.2', 0))
+    except OSError as e:
+        if e.errno == 99:
+            print('\rIP address 192.168.178.2 is not configured on any interface.')
+            exit(1)
+        else:
+            raise e from None
     sender.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sender.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     sender.settimeout(1)
 
     receiver = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     receiver.settimeout(AUTODISCOVER_TIMEOUT)
-    receiver.bind(('0.0.0.0', 5035))
+    receiver.bind(('192.168.178.2', 5035))
 
     i = 1
     while True:
