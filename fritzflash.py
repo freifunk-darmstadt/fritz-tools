@@ -76,13 +76,14 @@ def start_message(ip_address):
         "You can always find the most current version of this script at https://www.github.com/freifunk-darmstadt/fritz-tools\n\n"
         "It is strongly recommended to only connect your computer to the device you want to flash.\n"
         "Try to disable all other connections (Ethernet, WiFi/WLAN, VMs) if detection fails.\n\n"
+        "Sometimes an unmanaged switch between your AVM device and your computer is helpfull.\n\n"
         "Before we start, make sure you have assigned your PC a static IP Address in the Subnet of the device you want to flash.\n"
         "The following example would be a completely fine option:\n")
     print("IP-Address: %s" % str(ipaddress.ip_address(ip_address) + 1))
     print("Subnet: 255.255.255.0")
     print("Gateway: %s" % str(ipaddress.ip_address(ip_address)))
     print("DNS Servers: Leave blank\n")
-    print("Once you're done, press enter, disconnect power from your AVM device and reconnect the power-supply.")
+    print("Once you're ready to flash, press enter, disconnect power from your AVM device and reconnect the power-supply.")
 
 
 def connect_message():
