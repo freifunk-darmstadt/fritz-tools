@@ -23,7 +23,7 @@ Download the latest version of the flash-script ``fritzflash.py`` at the link be
 
 fritzflash.py_
 
-.. _fritzflash.py: https://github.com/freifunk-darmstadt/fritz-tools/releases
+.. _fritzflash.py: https://raw.githubusercontent.com/freifunk-darmstadt/fritz-tools/master/fritzflash.py
 
 
 Disable WiFi
