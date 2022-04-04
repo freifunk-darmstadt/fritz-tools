@@ -96,7 +96,7 @@ def flash_message():
           "First, the device will erase its current Operating System.\n"
           "Next, the device will write the Gluon image to its memory.\n"
           "The red Info LED will illuminate in this step. Don't worry, this is expected behavior.\n\n"
-          "Do *not* turn of the device!\n\n"
+          "Do *not* turn off the device!\n\n"
           "We will tell you when your device has finished installing Gluon (this may take a while).")
 
 
