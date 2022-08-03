@@ -33,6 +33,14 @@ In case your computer is connected via WiFi, make sure to disable this connectio
 
 .. image:: windows10_step_1.png
 
+
+Disable all other network adaptors
+------------
+
+In case your computer has multiple network adaptors disbling all but the adaptor used might help to autodetect the Fritzbox.
+
+.. image:: windows10_network_adaptors.png
+
 Configuring a static IP-address
 -------------------------------
 
@@ -88,4 +96,4 @@ Configure your network interface interface as pictured on the screenshot below a
 
 .. image:: windows10_step_9.png
 
-Also remember to turn on your WiFi again.
+Also remember to turn on your WiFi and other disabled adaptors again.
