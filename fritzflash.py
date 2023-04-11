@@ -245,6 +245,47 @@ def determine_image_name(env_string):
             "openwrt": [
                 "avm_fritzbox-4040-squashfs-eva.bin"
             ]
+        },
+        "209": {
+            "gluon": [
+                "openwrt-lantiq-xrx200-avm_fritz7412-initramfs-kernel.bin"
+            ],
+            "openwrt": [
+                "openwrt-lantiq-xrx200-avm_fritz7412-initramfs-kernel.bin"
+            ]
+        },
+        "218": {
+            "gluon": [
+                "openwrt-lantiq-xrx200-avm_fritz7430-initramfs-kernel.bin"
+            ],
+            "openwrt": [
+                "openwrt-lantiq-xrx200-avm_fritz7430-initramfs-kernel.bin"
+            ]
+        },
+        "236": {
+            "gluon": [
+                "uboot-fritz7530.bin"
+            ],
+            "openwrt": [
+                "uboot-fritz7530.bin"
+            ]
+        },
+        "244": {
+            "gluon": [
+                "uboot-fritz1200.bin"
+            ],
+            "openwrt": [
+                "uboot-fritz1200.bin"
+            ]
+        },
+        "247": {
+            # fritzbox 7520
+            "gluon": [
+                "uboot-fritz7530.bin"
+            ],
+            "openwrt": [
+                "uboot-fritz7530.bin"
+            ]
         }
     }
     for model in models.keys():
@@ -318,7 +359,7 @@ def autoload_image(ip):
         exit(1)
 
     print("-> Automatic image-selection successful!")
-    print("--> Will flash %s" % files[0])
+    print("--> Will flash %s" % files[0])       
 
     return open(files[0], 'rb')
 
@@ -340,11 +381,31 @@ def perform_flash(ip, file):
         exit(1)
 
     print("-> Flash image")
+
+    if file.name in ['uboot-fritz7520.bin', 'uboot-fritz7530.bin', 'uboot-fritz1200.bin', '7412', '7362sl', '7430']:
+        size = os.fstat(file.fileno()).st_size
+        assert size < 0x2000000
+
+        if file.name in ['fritz1200', '7520', '7530']:
+            addr = size
+	        haddr = 0x85000000
+        else:
+            addr = ((0x8000000 - size) & ~0xfff)
+	        haddr = 0x80000000 + addr        
+        img = open(args.image, "rb")
+
+        # The following parameters allow booting the avm recovery system with this
+        # script.
+        ftp.voidcmd('SETENV memsize 0x%08x'%(addr))
+        ftp.voidcmd('SETENV kernel_args_tmp mtdram1=0x%08x,0x88000000'%(haddr))
+        ftp.voidcmd('MEDIA SDRAM')
+        ftp.storbinary('STOR 0x%08x 0x88000000'%(haddr), img)
     flash_message()
     ftp.upload_image(file)
     print("-> Image write successful")
     print("-> Performing reboot")
     ftp.reboot()
+    file.close()
     finish_message()
 
 
