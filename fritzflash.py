@@ -246,6 +246,14 @@ def determine_image_name(env_string):
                 "avm_fritzbox-4040-squashfs-eva.bin"
             ]
         },
+        "203": {
+            "gluon": [
+                "openwrt-22.03.3-lantiq-xrx200-avm_fritz7362sl-initramfs-kernel.bin"
+            ],
+            "openwrt": [
+                "openwrt-22.03.3-lantiq-xrx200-avm_fritz7362sl-initramfs-kernel.bin"
+            ]
+        },
         "209": {
             "gluon": [
                 "openwrt-lantiq-xrx200-avm_fritz7412-initramfs-kernel.bin"
@@ -382,11 +390,11 @@ def perform_flash(ip, file):
 
     print("-> Flash image")
 
-    if file.name in ['uboot-fritz7520.bin', 'uboot-fritz7530.bin', 'uboot-fritz1200.bin', '7412', '7362sl', '7430']:
+    if file.name in ['uboot-fritz7520.bin', 'uboot-fritz7530.bin', 'uboot-fritz1200.bin', 'openwrt-lantiq-xrx200-avm_fritz7412-initramfs-kernel.bin', 'openwrt-22.03.3-lantiq-xrx200-avm_fritz7362sl-initramfs-kernel.bin', 'openwrt-lantiq-xrx200-avm_fritz7430-initramfs-kernel.bin']:
         size = os.fstat(file.fileno()).st_size
         assert size < 0x2000000
 
-        if file.name in ['fritz1200', '7520', '7530']:
+        if file.name in ['uboot-fritz7520.bin', 'uboot-fritz7530.bin', 'uboot-fritz1200.bin']:
             addr = size
 	        haddr = 0x85000000
         else:
@@ -396,6 +404,8 @@ def perform_flash(ip, file):
 
         # The following parameters allow booting the avm recovery system with this
         # script.
+        if file.name in ['openwrt-lantiq-xrx200-avm_fritz7412-initramfs-kernel.bin', 'openwrt-lantiq-xrx200-avm_fritz7430-initramfs-kernel.bin']
+            ftp.voidcmd('SETENV linux_fs_start 0')
         ftp.voidcmd('SETENV memsize 0x%08x'%(addr))
         ftp.voidcmd('SETENV kernel_args_tmp mtdram1=0x%08x,0x88000000'%(haddr))
         ftp.voidcmd('MEDIA SDRAM')
