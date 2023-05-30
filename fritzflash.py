@@ -1,10 +1,10 @@
 #! /usr/bin/env python3
 import argparse
 import ipaddress
-import os
 import socket
 import time
 from ftplib import FTP
+from pathlib import Path
 
 AUTODISCOVER_TIMEOUT = 1
 FTP_TIMEOUT = 2
@@ -247,50 +247,32 @@ def determine_image_name(env_string):
             ]
         },
         "203": {
-            "gluon": [
-                "openwrt-22.03.3-lantiq-xrx200-avm_fritz7362sl-initramfs-kernel.bin"
-            ],
             "openwrt": [
                 "openwrt-22.03.3-lantiq-xrx200-avm_fritz7362sl-initramfs-kernel.bin"
             ]
         },
         "209": {
-            "gluon": [
-                "openwrt-lantiq-xrx200-avm_fritz7412-initramfs-kernel.bin"
-            ],
             "openwrt": [
                 "openwrt-lantiq-xrx200-avm_fritz7412-initramfs-kernel.bin"
             ]
         },
         "218": {
-            "gluon": [
-                "openwrt-lantiq-xrx200-avm_fritz7430-initramfs-kernel.bin"
-            ],
             "openwrt": [
                 "openwrt-lantiq-xrx200-avm_fritz7430-initramfs-kernel.bin"
             ]
         },
         "236": {
-            "gluon": [
-                "uboot-fritz7530.bin"
-            ],
             "openwrt": [
                 "uboot-fritz7530.bin"
             ]
         },
         "244": {
-            "gluon": [
-                "uboot-fritz1200.bin"
-            ],
             "openwrt": [
                 "uboot-fritz1200.bin"
             ]
         },
         "247": {
             # fritzbox 7520
-            "gluon": [
-                "uboot-fritz7530.bin"
-            ],
             "openwrt": [
                 "uboot-fritz7530.bin"
             ]
@@ -337,15 +319,13 @@ def autoload_image(ip):
         input()
         exit(1)
 
-    dir_content = os.listdir(os.getcwd())
+    cwd = Path()
     files = []
-    for file in dir_content:
-        cwd = os.getcwd()
-        file = os.path.join(cwd, file)
-        if not os.path.isfile(file):
+    for file in cwd.iterdir():
+        if not file.is_file():
             continue
         for image_name in image_names:
-            if image_name in file:
+            if image_name in file.name:
                 files.append(file)
 
     if len(files) > 1:
@@ -369,7 +349,7 @@ def autoload_image(ip):
     print("-> Automatic image-selection successful!")
     print("--> Will flash %s" % files[0])       
 
-    return open(files[0], 'rb')
+    return files[0]
 
 
 def perform_flash(ip, file):
@@ -391,31 +371,30 @@ def perform_flash(ip, file):
     print("-> Flash image")
 
     if file.name in ['uboot-fritz7520.bin', 'uboot-fritz7530.bin', 'uboot-fritz1200.bin', 'openwrt-lantiq-xrx200-avm_fritz7412-initramfs-kernel.bin', 'openwrt-22.03.3-lantiq-xrx200-avm_fritz7362sl-initramfs-kernel.bin', 'openwrt-lantiq-xrx200-avm_fritz7430-initramfs-kernel.bin']:
-        size = os.fstat(file.fileno()).st_size
+        size = file.stat().st_size
         assert size < 0x2000000
 
         if file.name in ['uboot-fritz7520.bin', 'uboot-fritz7530.bin', 'uboot-fritz1200.bin']:
             addr = size
-	        haddr = 0x85000000
+            haddr = 0x85000000
         else:
             addr = ((0x8000000 - size) & ~0xfff)
-	        haddr = 0x80000000 + addr        
-        img = open(args.image, "rb")
-
-        # The following parameters allow booting the avm recovery system with this
-        # script.
-        if file.name in ['openwrt-lantiq-xrx200-avm_fritz7412-initramfs-kernel.bin', 'openwrt-lantiq-xrx200-avm_fritz7430-initramfs-kernel.bin']
-            ftp.voidcmd('SETENV linux_fs_start 0')
-        ftp.voidcmd('SETENV memsize 0x%08x'%(addr))
-        ftp.voidcmd('SETENV kernel_args_tmp mtdram1=0x%08x,0x88000000'%(haddr))
-        ftp.voidcmd('MEDIA SDRAM')
-        ftp.storbinary('STOR 0x%08x 0x88000000'%(haddr), img)
-    flash_message()
-    ftp.upload_image(file)
-    print("-> Image write successful")
-    print("-> Performing reboot")
-    ftp.reboot()
-    file.close()
+            haddr = 0x80000000 + addr        
+        with file.open("rb") as img:
+            # The following parameters allow booting the avm recovery system with this
+            # script.
+            if file.name in ['openwrt-lantiq-xrx200-avm_fritz7412-initramfs-kernel.bin', 'openwrt-lantiq-xrx200-avm_fritz7430-initramfs-kernel.bin']:
+                ftp.voidcmd('SETENV linux_fs_start 0')
+            ftp.voidcmd('SETENV memsize 0x%08x'%(addr))
+            ftp.voidcmd('SETENV kernel_args_tmp mtdram1=0x%08x,0x88000000'%(haddr))
+            ftp.voidcmd('MEDIA SDRAM')
+            ftp.storbinary('STOR 0x%08x 0x88000000'%(haddr), img)
+    else:
+        flash_message()
+        ftp.upload_image(file)
+        print("-> Image write successful")
+        print("-> Performing reboot")
+        ftp.reboot()
     finish_message()
 
 
@@ -425,8 +404,6 @@ if __name__ == '__main__':
     parser.add_argument('--image', type=str, help='Image file to transfer.')
     args = parser.parse_args()
 
-    imagefile = None
-
     if args.ip:
         try:
             socket.inet_aton(args.ip)
@@ -435,10 +412,9 @@ if __name__ == '__main__':
             exit(1)
 
     if args.image:
-        try:
-            imagefile = open(args.image, 'rb')
-        except FileNotFoundError:
-            print("Image file \"%s\" does not exist!" % os.path.abspath(args.image_path))
+        imagefile = Path(args.image)
+        if not imagefile.is_file():
+            print(f'Image file "{imagefile.absolute()}" does not exist!')
             exit(1)
 
     start_message("192.168.178.1")
