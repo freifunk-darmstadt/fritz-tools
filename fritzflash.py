@@ -16,12 +16,12 @@ from pathlib import Path
 from subprocess import run
 from contextlib import contextmanager
 
-from typing import ContextManager, Union
+from typing import List, ContextManager, Union
 
 from fritz_flash_tftp import serve_file
 
 IPInterface = Union[IPv4Interface, IPv6Interface]
-IPAdress = Union[IPv4Address, IPv6Address]
+IPAddress = Union[IPv4Address, IPv6Address]
 
 AUTODISCOVER_TIMEOUT = 1
 FTP_TIMEOUT = 2
@@ -113,7 +113,7 @@ def scp_legacy_check() -> bool:
     return ssh_ver >= "9.0"
 
 
-def ssh(host: IPAdress, cmd: List[str], user: str = "root"):
+def ssh(host: IPAddress, cmd: List[str], user: str = "root"):
     null_file = "/dev/null" if platform.system() in POSIX else "NUL"
     args = [
         "-o",
@@ -126,7 +126,7 @@ def ssh(host: IPAdress, cmd: List[str], user: str = "root"):
     run(["ssh", *args, f"{user}@{host}", *cmd]).check_returncode()
 
 
-def scp(host: IPAdress, file: Path, user: str = "root", target_dir: Path = "/tmp/"):
+def scp(host: IPAddress, file: Path, user: str = "root", target_dir: Path = "/tmp/"):
     null_file = "/dev/null" if platform.system() in POSIX else "NUL"
     args = ["-o", "StricHostKeyChecking=no", "-o", f"UserKnownHostsFile={null_file}"]
     if scp_legacy_check():
@@ -482,6 +482,7 @@ if __name__ == "__main__":
                 exit(1)
 
         start_message("192.168.178.1")
+
         input()
 
         if args.ip is None:
@@ -503,7 +504,7 @@ if __name__ == "__main__":
 
         perform_flash(ip, imagefile)
 
-    if hwrevision in [236, 247]:
+    if hwrevision in ['236', '247']:
         print("Starting TFTP flash process for 7530/7520")
         if not args.initramfs:
             print("No initramfs image provided. Flash not complete")
@@ -520,7 +521,7 @@ if __name__ == "__main__":
                     f'File "{sysupgradefile.absolute()}" does not exist!\nPlease check file name and Path.'
                 )
                 exit(1)
-            with set_ip(ipaddress.ip_interface("192.168.178.40/24"), args.device):
+            with set_ip(ipaddress.ip_interface("192.168.1.70/24"), args.device):
                 success = False
                 target_host = ipaddress.ip_address("192.168.1.1")
                 while not success:
@@ -529,9 +530,9 @@ if __name__ == "__main__":
                 print("Waiting for Host to come up with IP Adress 192.168.1.1 ...")
                 await_online(target_host)
                 print("-> Host online.\nTransfering bootloader")
-                scp(target_host, Path("uboot-fritz7530.bin"))
+                scp(target_host, imagefile)
                 print("-> Transfering sysupgrade target firmware")
-                scp(target_host, Path(args.sysupgrade))
+                scp(target_host, sysupgradefile)
                 print("Writing Bootloader")
                 ssh(
                     target_host,
@@ -560,4 +561,4 @@ if __name__ == "__main__":
                 )
                 print("Executing Sysupgrade")
                 ssh(target_host, ["sysupgrade", "-n", f"/tmp/{sysupgradefile.name}]"])
-    print(done)
+    print("done")
