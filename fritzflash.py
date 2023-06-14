@@ -28,7 +28,7 @@ FTP_TIMEOUT = 2
 FTP_MAX_RETRY = 10
 
 INITRAMFS_BOOT_TIMEOUT = 180  # in seconds
-POSIX = ["Linux", "Darwin"]
+POSIX = ["Linux", "Darwin", "FreeBSD"]
 
 
 class FritzFTP(FTP):
