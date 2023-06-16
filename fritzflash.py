@@ -18,7 +18,7 @@ from contextlib import contextmanager
 
 from typing import List, ContextManager, Union
 
-from fritz_flash_tftp import serve_file
+from simple_tftp import serve_file
 
 IPInterface = Union[IPv4Interface, IPv6Interface]
 IPAddress = Union[IPv4Address, IPv6Address]
@@ -28,7 +28,7 @@ FTP_TIMEOUT = 2
 FTP_MAX_RETRY = 10
 
 INITRAMFS_BOOT_TIMEOUT = 180  # in seconds
-POSIX = ["Linux", "Darwin", "FreeBSD"]
+IS_POSIX = platform.system() in ["Linux", "Darwin", "FreeBSD"]
 
 
 class FritzFTP(FTP):
@@ -93,9 +93,51 @@ class FritzFTP(FTP):
 
 @contextmanager
 def set_ip(ipinterface: IPInterface, network_device: str) -> ContextManager[None]:
-    run(["ip", "addr", "add", ipinterface.with_prefixlen, "dev", network_device])
-    yield
-    run(["ip", "addr", "delete", ipinterface.with_prefixlen, "dev", network_device])
+    if IS_POSIX:
+        output = run(
+            ["ip", "addr", "add", ipinterface.with_prefixlen, "dev", network_device],
+            capture_output=True,
+        )
+        try:
+            yield output.returncode == 0
+        finally:
+            run(
+                [
+                    "ip",
+                    "addr",
+                    "delete",
+                    ipinterface.with_prefixlen,
+                    "dev",
+                    network_device,
+                ],
+                capture_output=True,
+            )
+    else:
+        output = run(
+            [
+                "netsh",
+                "interface",
+                "ipv4",
+                "add",
+                "address",
+                f'"{network_device}" {ipinterface} {ipinterface.netmask}',
+            ],
+            capture_output=True,
+        )
+        try:
+            yield output.returncode == 0
+        finally:
+            run(
+                [
+                    "netsh",
+                    "interface",
+                    "ipv4",
+                    "delete",
+                    "address",
+                    f'"{network_device}" {ipinterface}',
+                ],
+                capture_output=True,
+            )
 
 
 def await_online(host: IPAddress):
@@ -114,7 +156,7 @@ def scp_legacy_check() -> bool:
 
 
 def ssh(host: IPAddress, cmd: List[str], user: str = "root"):
-    null_file = "/dev/null" if platform.system() in POSIX else "NUL"
+    null_file = "/dev/null" if IS_POSIX else "NUL"
     args = [
         "-o",
         "StricHostKeyChecking=no",
@@ -127,7 +169,7 @@ def ssh(host: IPAddress, cmd: List[str], user: str = "root"):
 
 
 def scp(host: IPAddress, file: Path, user: str = "root", target_dir: Path = "/tmp/"):
-    null_file = "/dev/null" if platform.system() in POSIX else "NUL"
+    null_file = "/dev/null" if IS_POSIX else "NUL"
     args = ["-o", "StricHostKeyChecking=no", "-o", f"UserKnownHostsFile={null_file}"]
     if scp_legacy_check():
         args.append("-O")
@@ -145,12 +187,13 @@ def connection_refused_message():
 
 def start_message(ip_address):
     print(
-        "This program will help you installing Gluon, a widely used Firmware for Freifunk networks, onto your AVM device.\n"
+        "This program will help you installing OpenWRT or Gluon, a widely used Firmware for Freifunk networks, onto your AVM device.\n"
         "You can always find the most current version of this script at https://www.github.com/freifunk-darmstadt/fritz-tools\n\n"
         "It is strongly recommended to only connect your computer to the device you want to flash.\n"
-        "Try to disable all other connections (Ethernet, WiFi/WLAN, VMs) if detection fails.\n\n"
-        "Sometimes an unmanaged switch between your AVM device and your computer is helpfull.\n\n"
-        "Before we start, make sure you have assigned your PC a static IP Address in the Subnet of the device you want to flash.\n"
+        "Try to disable all other connections (Ethernet, WiFi/WLAN, VMs) if detection fails.\n"
+        "Sometimes an unmanaged switch between your AVM device and your computer is helpful.\n\n"
+        "If you run this program with according permission, it will configure IPs on your host automatically.\n"
+        "Otherwise, make sure you have assigned your PC a static IP Address in the Subnet of the device you want to flash.\n"
         "The following example would be a completely fine option:\n"
     )
     print("IP-Address: %s" % str(ipaddress.ip_address(ip_address) + 1))
@@ -442,47 +485,111 @@ def perform_flash(ip, file):
         print("-> Image write successful")
         print("-> Performing reboot")
         ftp.reboot()
-    finish_message()
+
+
+def perform_tftp_flash(initramfsfile, sysupgradefile):
+    with set_ip(ipaddress.ip_interface("192.168.1.70/24"), args.device) as can_set_ip:
+        if not can_set_ip:
+            print("could not set ip to 192.168.1.70/24")
+            print("tftp requires admin privileges")
+            exit(1)
+        success = False
+        target_host = ipaddress.ip_address("192.168.1.1")
+        while not success:
+            success, host = next(serve_file(ramfsfile))
+        print(f"-> Transfered initramfs image to {host}.")
+        print("Waiting for Host to come up with IP Adress 192.168.1.1 ...")
+        await_online(target_host)
+        print("-> Host online.\nTransfering bootloader")
+        scp(target_host, imagefile)
+        print("-> Transfering sysupgrade target firmware")
+        scp(target_host, sysupgradefile)
+        print("Writing Bootloader")
+        ssh(
+            target_host,
+            [
+                "mtd",
+                "write",
+                f"/tmp/{imagefile}",
+                "uboot0",
+                "&&",
+                "mtd",
+                "write",
+                f"/tmp/{imagefile}",
+                "uboot1",
+            ],
+        )
+        ssh(
+            target_host,
+            [
+                "ubirmvol",
+                "/dev/ubi0",
+                "--name=avm_filesys_0",
+                "&&" "ubirmvol",
+                "/dev/ubi0",
+                "--name=avm_filesys_1",
+            ],
+        )
+        print("Executing Sysupgrade")
+        ssh(target_host, ["sysupgrade", "-n", f"/tmp/{sysupgradefile.name}]"])
+    print("Finished flashing TFTP")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Flash Gluon image to AVM devices using EVA."
+        description="Flash Gluon image to AVM devices using EVA or/and TFTP."
     )
     parser.add_argument(
         "--ip", type=str, help="IP Address of device. Autodiscovery if not specified."
     )
-    parser.add_argument("--image", type=str, help="Image file to transfer.")
     parser.add_argument(
-        "--initramfs", type=str, help="Compatible openwrt initramfs image file."
+        "--image",
+        type=str,
+        help="Image file to transfer. Autodiscovery if not specified.",
     )
     parser.add_argument(
-        "--sysupgrade", type=str, help="Target system image file, the operating system."
+        "--initramfs",
+        type=str,
+        help="Compatible openwrt initramfs image file for TFTP flash.",
+    )
+    parser.add_argument(
+        "--sysupgrade",
+        type=str,
+        help="Target system image file, the operating system for TFTP flash.",
     )
     parser.add_argument(
         "--device",
         "-dev",
         type=str,
         help="Name of the Ethernet adapter (look it up ie by 'ip link')",
+        required=True,
     )
     args = parser.parse_args()
 
-    with set_ip(ipaddress.ip_interface("192.168.178.2/24"), args.device):
+    with set_ip(ipaddress.ip_interface("192.168.178.2/24"), args.device) as can_set_ip:
         if args.ip:
             try:
                 ip = ipaddress.ip_address(ip)
             except AddressValueError:
-                print(f"{args.ip_address} is not a valid IPv4 address!")
+                print(f"{args.ip} is not a valid IPv4 address!")
                 exit(1)
-
+        flash_tftp = False
+        ramfsfile = None
+        sysupgradefile = None
+        imagefile = None
         if args.image:
             imagefile = Path(args.image)
             if not imagefile.is_file():
                 print(f'Image file "{imagefile.absolute()}" does not exist!')
                 exit(1)
+            print("If this device is a FB 7520/7530 write y")
+            flash_tftp = input().lower().startswith("y")
 
+        if can_set_ip:
+            print("did set ip to 192.168.178.2/24")
+        else:
+            print("could not set ip to 192.168.178.2/24")
         start_message("192.168.178.1")
-
         input()
 
         if args.ip is None:
@@ -501,64 +608,26 @@ if __name__ == "__main__":
         if args.image is None:
             # Try to automatically locate an image to use
             imagefile, hwrevision = autoload_image(ip)
+            flash_tftp = hwrevision in ["236", "247"]
 
-        perform_flash(ip, imagefile)
-
-    if hwrevision in ['236', '247']:
-        print("Starting TFTP flash process for 7530/7520")
-        if not args.initramfs:
-            print("No initramfs image provided. Flash not complete")
-        else:
+        if flash_tftp:
+            if not (args.initramfs and args.sysupgrade):
+                print("Providing initramfs and sysupgrade is required for this device")
+                exit(1)
             ramfsfile = Path(args.initramfs)
             sysupgradefile = Path(args.sysupgrade)
             if not ramfsfile.is_file():
-                print(
-                    f'File "{ramfsfile.absolute()}" does not exist!\nPlease check file name and Path.'
-                )
+                print(f'File "{ramfsfile.absolute()}" does not exist!')
+                print("Please check file name and Path.")
                 exit(1)
             if not sysupgradefile.is_file():
-                print(
-                    f'File "{sysupgradefile.absolute()}" does not exist!\nPlease check file name and Path.'
-                )
+                print(f'File "{sysupgradefile.absolute()}" does not exist!')
+                print("Please check file name and Path.")
                 exit(1)
-            with set_ip(ipaddress.ip_interface("192.168.1.70/24"), args.device):
-                success = False
-                target_host = ipaddress.ip_address("192.168.1.1")
-                while not success:
-                    success, host = next(serve_file(ramfsfile))
-                print(f"-> Transfered initramfs image to {host}.")
-                print("Waiting for Host to come up with IP Adress 192.168.1.1 ...")
-                await_online(target_host)
-                print("-> Host online.\nTransfering bootloader")
-                scp(target_host, imagefile)
-                print("-> Transfering sysupgrade target firmware")
-                scp(target_host, sysupgradefile)
-                print("Writing Bootloader")
-                ssh(
-                    target_host,
-                    [
-                        "mtd",
-                        "write",
-                        f"/tmp/{imagefile}",
-                        "uboot0",
-                        "&&",
-                        "mtd",
-                        "write",
-                        f"/tmp/{imagefile}",
-                        "uboot1",
-                    ],
-                )
-                ssh(
-                    target_host,
-                    [
-                        "ubirmvol",
-                        "/dev/ubi0",
-                        "--name=avm_filesys_0",
-                        "&&" "ubirmvol",
-                        "/dev/ubi0",
-                        "--name=avm_filesys_1",
-                    ],
-                )
-                print("Executing Sysupgrade")
-                ssh(target_host, ["sysupgrade", "-n", f"/tmp/{sysupgradefile.name}]"])
-    print("done")
+
+        perform_flash(ip, imagefile)
+
+    if flash_tftp:
+        print("Starting TFTP flash process for FB 7530/7520")
+        perform_tftp_flash(args.initramfs, args.sysupgrade)
+    finish_message()
