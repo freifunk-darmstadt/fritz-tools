@@ -340,7 +340,7 @@ def determine_image_name(env_string):
         },
         "203": {
             "openwrt": [
-                "openwrt-22.03.3-lantiq-xrx200-avm_fritz7362sl-initramfs-kernel.bin"
+                "openwrt-lantiq-xrx200-avm_fritz7362sl-initramfs-kernel.bin"
             ]
         },
         "209": {
@@ -457,7 +457,7 @@ def perform_flash(ip, file):
         "uboot-fritz7530.bin",
         "uboot-fritz1200.bin",
         "openwrt-lantiq-xrx200-avm_fritz7412-initramfs-kernel.bin",
-        "openwrt-22.03.3-lantiq-xrx200-avm_fritz7362sl-initramfs-kernel.bin",
+        "openwrt-lantiq-xrx200-avm_fritz7362sl-initramfs-kernel.bin",
         "openwrt-lantiq-xrx200-avm_fritz7430-initramfs-kernel.bin",
     ]:
         size = file.stat().st_size
@@ -493,7 +493,11 @@ def perform_flash(ip, file):
         ftp.reboot()
 
 
-def perform_bootloader_flash(imagefile: Path, sysupgradefile: Path):
+def perform_bootloader_flash(
+    sysupgradefile: Path,
+    imagefile: Path = None,
+    flash_tftp: bool = None,
+):
     with set_ip(ipaddress.ip_interface("192.168.1.70/24"), args.device) as can_set_ip:
         if not can_set_ip:
             print("could not set ip to 192.168.1.70/24")
@@ -502,37 +506,38 @@ def perform_bootloader_flash(imagefile: Path, sysupgradefile: Path):
         target_host = ipaddress.ip_address("192.168.1.1")
         print("Waiting for Host to come up with IP Adress 192.168.1.1 ...")
         await_online(target_host)
-        print("-> Host online.\nTransfering bootloader")
-        scp(target_host, imagefile)
-        print("-> Transfering sysupgrade target firmware")
+        print("-> Host online.\nTransfering sysupgrade target firmware")
         scp(target_host, sysupgradefile)
-        print("Writing Bootloader")
-        ssh(
-            target_host,
-            [
-                "mtd",
-                "write",
-                f"/tmp/{imagefile}",
-                "uboot0",
-                "&&",
-                "mtd",
-                "write",
-                f"/tmp/{imagefile}",
-                "uboot1",
-            ],
-        )
-        ssh(
-            target_host,
-            [
-                "ubirmvol",
-                "/dev/ubi0",
-                "--name=avm_filesys_0",
-                "&&",
-                "ubirmvol",
-                "/dev/ubi0",
-                "--name=avm_filesys_1",
-            ],
-        )
+        if flash_tftp:
+            print("-> Transfering bootloader")
+            scp(target_host, imagefile)
+            print("Writing Bootloader")
+            ssh(
+                target_host,
+                [
+                    "mtd",
+                    "write",
+                    f"/tmp/{imagefile}",
+                    "uboot0",
+                    "&&",
+                    "mtd",
+                    "write",
+                    f"/tmp/{imagefile}",
+                    "uboot1",
+                ],
+            )
+            ssh(
+                target_host,
+                [
+                    "ubirmvol",
+                    "/dev/ubi0",
+                    "--name=avm_filesys_0",
+                    "&&",
+                    "ubirmvol",
+                    "/dev/ubi0",
+                    "--name=avm_filesys_1",
+                ],
+            )
         print("Executing Sysupgrade")
         ssh(target_host, ["sysupgrade", "-n", f"/tmp/{sysupgradefile.name}]"])
 
@@ -566,7 +571,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--initramfs",
         type=str,
-        help="Compatible openwrt initramfs image file for TFTP flash.",
+        help="Compatible openwrt initramfs image file for uboot+TFTP flash.",
     )
     parser.add_argument(
         "--sysupgrade",
@@ -591,7 +596,7 @@ if __name__ == "__main__":
         if not imagefile.is_file():
             print(f'Image file "{imagefile.absolute()}" does not exist!')
             exit(1)
-        print("If this device is a FB 7520/7530 write y")
+        print("If this device is a FB 7520/7530 or a FR 1200 write y")
         flash_tftp = input().lower().startswith("y")
 
     start_message("192.168.178.1")
@@ -625,7 +630,7 @@ if __name__ == "__main__":
         if args.image is None:
             # Try to automatically locate an image to use
             imagefile, hwrevision = autoload_image(ip)
-            flash_tftp = hwrevision in ["236", "247"]
+            flash_tftp = hwrevision in ["236", "244", "247"]
 
         if flash_tftp:
             if not (args.initramfs and args.sysupgrade):
@@ -645,12 +650,12 @@ if __name__ == "__main__":
         perform_flash(ip, imagefile)
 
     if flash_tftp:
-        print("Starting TFTP flash process for FB 7530/7520")
+        print("Starting TFTP flash process for FB 7530/7520 or FR 1200")
         perform_tftp_flash(args.initramfs, args.sysupgrade)
         print("Sleep 90s - let system boot")
         time.sleep(60)
-        print("System will come up for ~10s about now, but we still need to wait 30s")
+        print("Device will come up for ~5s about now, but we still need to wait 30s")
         time.sleep(30)
-        perform_bootloader_flash(imagefile, sysupgradefile)
-        print("Finished flash procedure")
+    perform_bootloader_flash(sysupgradefile, imagefile, flash_tftp)
+    print("Finished flash procedure")
     finish_message()
