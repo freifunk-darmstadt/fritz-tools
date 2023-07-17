@@ -74,6 +74,11 @@ class FritzFTP(FTP):
 
         for line in env[0].decode("ascii").splitlines():
             l = line.split()
+            if len(l) < 2:
+                print(f"'{l}' is not a tuple, ignoring")
+                # after using the fritz recovery tool, my FB7530 had
+                # a ['ptest'] entry, without a value..
+                continue
             fritzenv[l[0]] = l[1]
 
         return fritzenv
@@ -84,7 +89,8 @@ class FritzFTP(FTP):
     def upload_image(self, image):
         self.set_flash_timeout()
         self.voidcmd("MEDIA FLSH")
-        self.storbinary("STOR mtd1", image)
+        with image.open("rb") as file:
+            self.storbinary("STOR mtd1", file)
 
     def reboot(self):
         self.voidcmd("REBOOT")
@@ -99,7 +105,7 @@ def set_ip(ipinterface: IPInterface, network_device: str) -> ContextManager[None
             capture_output=True,
         )
         try:
-            yield output.returncode == 0
+            yield output.returncode in [0, 2]
         finally:
             run(
                 [
@@ -141,14 +147,14 @@ def set_ip(ipinterface: IPInterface, network_device: str) -> ContextManager[None
 
 
 def await_online(host: IPAddress):
-    response = run(["ping", "-w", INITRAMFS_BOOT_TIMEOUT, str(host)])
+    response = run(["ping", "-c", "1", "-W", f"{INITRAMFS_BOOT_TIMEOUT}", str(host)])
     return response.returncode
 
 
 def scp_legacy_check() -> bool:
     """Since OpenSSH release 9.0, scp uses the sftp protocol by default which
     is known to be incompatible with the uboot present on stock 7530/7520"""
-    response = run(["ssh" "-V"], capture_output=True)
+    response = run(["ssh", "-V"], capture_output=True)
     version_string = response.stderr.decode().strip()
     ssh_ver, ssl_ver = version_string.split(",")
     ssh_ver = ssh_ver.strip("OpenSSH_")
@@ -159,21 +165,21 @@ def ssh(host: IPAddress, cmd: List[str], user: str = "root"):
     null_file = "/dev/null" if IS_POSIX else "NUL"
     args = [
         "-o",
-        "StricHostKeyChecking=no",
+        "StrictHostKeyChecking=no",
         "-o",
         f"UserKnownHostsFile={null_file}",
         "-o",
-        "HostkeyAlgorithms=+ssh-rsa",
+        "HostKeyAlgorithms=+ssh-rsa",
     ]
     run(["ssh", *args, f"{user}@{host}", *cmd]).check_returncode()
 
 
-def scp(host: IPAddress, file: Path, user: str = "root", target_dir: Path = "/tmp/"):
+def scp(host: IPAddress, file: Path, user: str = "root", target: Path = "/tmp/"):
     null_file = "/dev/null" if IS_POSIX else "NUL"
-    args = ["-o", "StricHostKeyChecking=no", "-o", f"UserKnownHostsFile={null_file}"]
+    args = ["-o", "StrictHostKeyChecking=no", "-o", f"UserKnownHostsFile={null_file}"]
     if scp_legacy_check():
         args.append("-O")
-    run(["scp", *args, f"{user}@{host}:{target_dir}"]).check_returncode()
+    run(["scp", *args, file.name, f"{user}@{host}:{target}"]).check_returncode()
 
 
 def connection_refused_message():
@@ -487,17 +493,13 @@ def perform_flash(ip, file):
         ftp.reboot()
 
 
-def perform_tftp_flash(initramfsfile, sysupgradefile):
+def perform_bootloader_flash(imagefile: Path, sysupgradefile: Path):
     with set_ip(ipaddress.ip_interface("192.168.1.70/24"), args.device) as can_set_ip:
         if not can_set_ip:
             print("could not set ip to 192.168.1.70/24")
-            print("tftp requires admin privileges")
+            print("make sure to run with admin privileges")
             exit(1)
-        success = False
         target_host = ipaddress.ip_address("192.168.1.1")
-        while not success:
-            success, host = next(serve_file(ramfsfile))
-        print(f"-> Transfered initramfs image to {host}.")
         print("Waiting for Host to come up with IP Adress 192.168.1.1 ...")
         await_online(target_host)
         print("-> Host online.\nTransfering bootloader")
@@ -525,14 +527,28 @@ def perform_tftp_flash(initramfsfile, sysupgradefile):
                 "ubirmvol",
                 "/dev/ubi0",
                 "--name=avm_filesys_0",
-                "&&" "ubirmvol",
+                "&&",
+                "ubirmvol",
                 "/dev/ubi0",
                 "--name=avm_filesys_1",
             ],
         )
         print("Executing Sysupgrade")
         ssh(target_host, ["sysupgrade", "-n", f"/tmp/{sysupgradefile.name}]"])
-    print("Finished flashing TFTP")
+
+
+def perform_tftp_flash(initramfsfile: Path, sysupgradefile: Path):
+    with set_ip(ipaddress.ip_interface("192.168.1.70/24"), args.device) as can_set_ip:
+        if not can_set_ip:
+            print("could not set ip to 192.168.1.70/24")
+            print(
+                "make sure to run with admin privileges and that the ip is currently unset"
+            )
+            exit(1)
+        success = False
+        while not success:
+            success, host = next(serve_file(initramfsfile))
+        print(f"-> Transfered initramfs image to {host}.")
 
 
 if __name__ == "__main__":
@@ -545,7 +561,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--image",
         type=str,
-        help="Image file to transfer. Autodiscovery if not specified.",
+        help="(uboot) image file to transfer. Autodiscovery if not specified.",
     )
     parser.add_argument(
         "--initramfs",
@@ -566,33 +582,34 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    with set_ip(ipaddress.ip_interface("192.168.178.2/24"), args.device) as can_set_ip:
-        if args.ip:
-            try:
-                ip = ipaddress.ip_address(ip)
-            except AddressValueError:
-                print(f"{args.ip} is not a valid IPv4 address!")
-                exit(1)
-        flash_tftp = False
-        ramfsfile = None
-        sysupgradefile = None
-        imagefile = None
-        if args.image:
-            imagefile = Path(args.image)
-            if not imagefile.is_file():
-                print(f'Image file "{imagefile.absolute()}" does not exist!')
-                exit(1)
-            print("If this device is a FB 7520/7530 write y")
-            flash_tftp = input().lower().startswith("y")
+    flash_tftp = False
+    ramfsfile = None
+    sysupgradefile = None
+    imagefile = None
+    if args.image:
+        imagefile = Path(args.image)
+        if not imagefile.is_file():
+            print(f'Image file "{imagefile.absolute()}" does not exist!')
+            exit(1)
+        print("If this device is a FB 7520/7530 write y")
+        flash_tftp = input().lower().startswith("y")
 
+    start_message("192.168.178.1")
+    input()
+
+    with set_ip(ipaddress.ip_interface("192.168.178.2/24"), args.device) as can_set_ip:
         if can_set_ip:
             print("did set ip to 192.168.178.2/24")
         else:
             print("could not set ip to 192.168.178.2/24")
-        start_message("192.168.178.1")
-        input()
 
-        if args.ip is None:
+        if args.ip:
+            try:
+                ip = ipaddress.ip_address(args.ip)
+            except AddressValueError:
+                print(f"{args.ip} is not a valid IPv4 address!")
+                exit(1)
+        else:
             print("Trying to autodiscover! Abort via Ctrl-c.")
             ip = autodiscover_avm_ip()
 
@@ -630,4 +647,10 @@ if __name__ == "__main__":
     if flash_tftp:
         print("Starting TFTP flash process for FB 7530/7520")
         perform_tftp_flash(args.initramfs, args.sysupgrade)
+        print("Sleep 90s - let system boot")
+        time.sleep(60)
+        print("System will come up for ~10s about now, but we still need to wait 30s")
+        time.sleep(30)
+        perform_bootloader_flash(imagefile, sysupgradefile)
+        print("Finished flash procedure")
     finish_message()

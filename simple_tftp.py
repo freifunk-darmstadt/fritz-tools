@@ -15,7 +15,7 @@ FILE_DIR = Path(__file__)
 # header opcode is 2 bytes
 TFTP_OPCODES = {1: "RRQ", 2: "WRQ", 3: "DATA", 4: "ACK", 5: "ERROR"}
 
-TRANSFER_MODES = ["netascii", "octet", "mail"]
+TRANSFER_MODES = ["netascii", "octet"]  # "mail" is deprecated
 TRANSFER_MODES_T = Literal["netascii", "octet", "mail"]
 
 TFTP_ERRORS = {
@@ -38,9 +38,8 @@ def create_data_packet(block, file: Path, mode: TRANSFER_MODES_T) -> bytes:
     data.append(3)
 
     # append block number (2 bytes)
-    b = f"{block:02}"
-    data.append(int(b[0]))
-    data.append(int(b[1]))
+    data.append(int(block / 256))
+    data.append(int(block % 256))
 
     # append data (512 bytes max)
     content = read_file(block, file)
@@ -56,9 +55,8 @@ def create_ack_packet(block) -> bytes:
     ack.append(4)
 
     # append block number (2 bytes)
-    b = f"{block:02}"
-    ack.append(int(b[0]))
-    ack.append(int(b[1]))
+    ack.append(int(block / 256))
+    ack.append(int(block % 256))
 
     return bytes(ack)
 
@@ -83,8 +81,8 @@ def create_error_packet(error_code: TFTP_ERRORS_T) -> bytes:
 
 
 def read_file(block: int, file: Path) -> str:
+    offset = (block - 1) * 512
     with file.open("rb") as f:
-        offset = (block - 1) * 512
         f.seek(offset, 0)
         content = f.read(512)
     return content
@@ -132,15 +130,17 @@ def serve(port: int, file: Path, mode: TRANSFER_MODES_T) -> Tuple[bool, str]:
     session = SESSIONS[port]
 
     with create_udp_socket(port=port) as sock:
-        packet = create_data_packet(1, file, mode)
+        block = 1
+        packet = create_data_packet(block, file, mode)
+        size = file.stat().st_size // 512
+
         sock.sendto(packet, session["addr"])
-        
+
         SESSIONS[port]["packet"] = packet
-        
         while True:
             try:
                 sock.settimeout(SOCK_TIMEOUT)
-                data, addr = sock.recvfrom(1024)  # buffer size is 2014 bytes
+                data, addr = sock.recvfrom(1024)  # buffer size is 1024 bytes
                 session["consec_timeouts"] = 0
 
                 # Check address (IP, port) matches initial connection address
@@ -158,8 +158,11 @@ def serve(port: int, file: Path, mode: TRANSFER_MODES_T) -> Tuple[bool, str]:
                     # from the client we can terminate the connection.
                     if len(session["packet"]) < 516 and len_block_ack == len_last_sent:
                         return True, addr
+                    block += 1
+                    if block % 256 == 0:
+                        print(f"{block} / {size}")
 
-                    packet = create_data_packet(block + 1, file, mode)
+                    packet = create_data_packet(block, file, mode)
                     sock.sendto(packet, addr)
                     session["packet"] = packet
                 else:
@@ -174,12 +177,14 @@ def serve(port: int, file: Path, mode: TRANSFER_MODES_T) -> Tuple[bool, str]:
                     return False, addr
 
 
-def serve_file(file: Path) -> Generator[Tuple[bool, str], None, None]:
+def serve_file(
+    file: Path, serve_name: str = "FRITZ7530.bin"
+) -> Generator[Tuple[bool, str], None, None]:
     file = Path(file)
-    sessions = {}
-
     with create_udp_socket(port=69) as server_sock:
-        print(f"TFTP Server started listening on Port 69, serving {file}")
+        print(
+            f"TFTP Server started listening on Port 69, serving {file} under name {serve_name}"
+        )
 
         # yield file transfers until
         while True:
@@ -188,14 +193,17 @@ def serve_file(file: Path) -> Generator[Tuple[bool, str], None, None]:
             # Only serving read operations
             if opcode != "RRQ":
                 server_sock.sendto(create_error_packet(4), addr)
+                print(f"wrong opcode: {opcode} was requested")
                 continue
             rfile, mode = decode_request_header(data)
             # Mail is deprecated
-            if not mode in TRANSFER_MODES or mode == "mail":
+            if not mode in TRANSFER_MODES:
                 server_sock.sendto(create_error_packet(0), addr)
+                print(f"unsupported mode: {mode} was requested")
                 continue
             # Only serving a specific file
-            if rfile != Path(file.name):
+            print(f"{rfile} was requested")
+            if rfile.name.strip() != serve_name:
                 server_sock.sendto(create_error_packet(1), addr)
                 continue
 
@@ -209,7 +217,9 @@ if __name__ == "__main__":
         if success:
             print(f"Successfully served file {sys.argv[1]} to Host {host}")
             try:
-                input("Press any key to serve to another Host, CTRL-c or CTRL-d to stop TFTP server.")
+                input(
+                    "Press any key to serve to another Host, CTRL-c or CTRL-d to stop TFTP server."
+                )
             except (KeyboardInterrupt, EOFError) as interrupt:
                 break
         else:
