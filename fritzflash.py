@@ -163,7 +163,8 @@ def scp_legacy_check() -> bool:
     ssh_ver, ssl_ver = version_string.split(",")
     ssh_ver = ssh_ver.strip("OpenSSH_for_Windows_")
     ssh_ver = ssh_ver.strip("OpenSSH_")
-    return ssh_ver >= "9.0"
+    major = int(ssh_ver.split(".")[0])
+    return major >= 9
 
 
 def ssh(host: IPAddress, cmd: List[str], user: str = "root"):
