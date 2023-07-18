@@ -126,11 +126,14 @@ def set_ip(ipinterface: IPInterface, network_device: str) -> ContextManager[None
                 "ipv4",
                 "add",
                 "address",
-                f'"{network_device}" {ipinterface} {ipinterface.netmask}',
+                f'"{network_device}"',
+                f"{ipinterface.ip}",
+                f"{ipinterface.netmask}",
             ],
             capture_output=True,
         )
         try:
+            time.sleep(5)
             yield output.returncode == 0
         finally:
             run(
@@ -140,14 +143,15 @@ def set_ip(ipinterface: IPInterface, network_device: str) -> ContextManager[None
                     "ipv4",
                     "delete",
                     "address",
-                    f'"{network_device}" {ipinterface}',
+                    f'"{network_device}"',
+                    f"{ipinterface.ip}",
                 ],
                 capture_output=True,
             )
 
 
 def await_online(host: IPAddress):
-    response = run(["ping", "-c", "1", "-W", f"{INITRAMFS_BOOT_TIMEOUT}", str(host)])
+    response = run(["ping", "-c", "1", "-w", f"{INITRAMFS_BOOT_TIMEOUT}", str(host)])
     return response.returncode
 
 
@@ -157,6 +161,7 @@ def scp_legacy_check() -> bool:
     response = run(["ssh", "-V"], capture_output=True)
     version_string = response.stderr.decode().strip()
     ssh_ver, ssl_ver = version_string.split(",")
+    ssh_ver = ssh_ver.strip("OpenSSH_for_Windows_")
     ssh_ver = ssh_ver.strip("OpenSSH_")
     return ssh_ver >= "9.0"
 
@@ -539,7 +544,7 @@ def perform_bootloader_flash(
                 ],
             )
         print("Executing Sysupgrade")
-        ssh(target_host, ["sysupgrade", "-n", f"/tmp/{sysupgradefile.name}]"])
+        ssh(target_host, ["sysupgrade", "-n", f"/tmp/{sysupgradefile.name}"])
 
 
 def perform_tftp_flash(initramfsfile: Path, sysupgradefile: Path):
