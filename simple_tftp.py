@@ -1,15 +1,17 @@
-import os.path, random, sys
-from socket import socket, AF_INET, AF_INET6, SOCK_DGRAM, timeout
-from pathlib import Path
+#! /usr/bin/env python3
+import random
+import socket
+import sys
 from contextlib import contextmanager
-from typing import Tuple, Generator, Literal
+from pathlib import Path
+from typing import Generator, Literal, Tuple
 
 UDP_IP = "0.0.0.0"
 UDP_PORT = 69  # TFTP Protocol Port (69)
 
 SOCK_TIMEOUT = 5
 MAX_TIMEOUT_RETRIES = 5
-SESSIONS = dict()
+SESSIONS: dict = dict()
 FILE_DIR = Path(__file__)
 
 # header opcode is 2 bytes
@@ -80,7 +82,7 @@ def create_error_packet(error_code: TFTP_ERRORS_T) -> bytes:
     return bytes(err)
 
 
-def read_file(block: int, file: Path) -> str:
+def read_file(block: int, file: Path) -> bytes:
     offset = (block - 1) * 512
     with file.open("rb") as f:
         f.seek(offset, 0)
@@ -114,8 +116,8 @@ def get_random_port() -> int:
 
 
 @contextmanager
-def create_udp_socket(ip=UDP_IP, port=UDP_PORT) -> Generator[socket, None, None]:
-    sock = socket(AF_INET, SOCK_DGRAM)  # Internet  # UDP
+def create_udp_socket(ip=UDP_IP, port=UDP_PORT) -> Generator[socket.socket, None, None]:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Internet  # UDP
     sock.bind((ip, port))
     try:
         yield sock
@@ -160,7 +162,7 @@ def serve(port: int, file: Path, mode: TRANSFER_MODES_T) -> Tuple[bool, str]:
                         return True, addr
                     block += 1
                     if block % 256 == 0:
-                        print(f"{block} / {size}")
+                        print(f"{block} / {size}", end="")
 
                     packet = create_data_packet(block, file, mode)
                     sock.sendto(packet, addr)
@@ -169,7 +171,7 @@ def serve(port: int, file: Path, mode: TRANSFER_MODES_T) -> Tuple[bool, str]:
                     # Threads only handle incoming packets with ACK opcodes, send
                     # 'Illegal TFTP Operation' ERROR packet for any other opcode.
                     sock.sendto(create_error_packet(4), addr)
-            except timeout:
+            except socket.timeout:
                 if session["consec_timeouts"] < MAX_TIMEOUT_RETRIES:
                     session["consec_timeouts"] += 1
                     sock.sendto(session["packet"], session["addr"])
@@ -197,7 +199,7 @@ def serve_file(
                 continue
             rfile, mode = decode_request_header(data)
             # Mail is deprecated
-            if not mode in TRANSFER_MODES:
+            if mode not in TRANSFER_MODES:
                 server_sock.sendto(create_error_packet(0), addr)
                 print(f"unsupported mode: {mode} was requested")
                 continue
@@ -212,7 +214,7 @@ def serve_file(
             yield serve(port, file, mode)
 
 
-if __name__ == "__main__":
+def main_tftp():
     for success, host in serve_file(sys.argv[1]):
         if success:
             print(f"Successfully served file {sys.argv[1]} to Host {host}")
@@ -220,7 +222,7 @@ if __name__ == "__main__":
                 input(
                     "Press any key to serve to another Host, CTRL-c or CTRL-d to stop TFTP server."
                 )
-            except (KeyboardInterrupt, EOFError) as interrupt:
+            except (KeyboardInterrupt, EOFError):
                 break
         else:
             print(f"Timeout serving file to Host {host}")
