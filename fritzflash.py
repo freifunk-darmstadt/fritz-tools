@@ -839,7 +839,7 @@ if __name__ == "__main__":
             )
             input()
 
-        if args.ip:
+        if "ip" in args:
             try:
                 ip = ip_address(args.ip)
             except AddressValueError:
@@ -893,7 +893,7 @@ if __name__ == "__main__":
         perform_bootloader_flash(sysupgradefile, imagefile, flash_tftp)
     else:
         print(
-            "no sysupgrade provided, should run sysupgrade to persistently install firmware"
+            "no additional sysupgrade provided, depending on your device, you should run sysupgrade to persistently install firmware"
         )
     print("Finished flash procedure")
     finish_message()
