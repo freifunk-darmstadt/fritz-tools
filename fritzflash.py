@@ -406,6 +406,7 @@ def scp(host: IPAddress, file: Path, user: str = "root", target: Path = Path("/t
     null_file = "/dev/null" if IS_POSIX else "NUL"
     args = ["-o", "StrictHostKeyChecking=no", "-o", f"UserKnownHostsFile={null_file}"]
     if scp_legacy_check():
+        print("using legacy")
         args.append("-O")
     run(["scp", *args, file.name, f"{user}@{host}:{target}"]).check_returncode()
 
@@ -760,7 +761,14 @@ def perform_bootloader_flash(
                 ],
             )
         print("Executing Sysupgrade")
-        ssh(target_host, ["sysupgrade", "-n", f"/tmp/{sysupgradefile.name}"])
+        try:
+            return_code = ssh(target_host, ["sysupgrade", "-n", f"/tmp/{sysupgradefile.name}"])
+        except subprocess.CalledProcessError as e:
+            if return_code == 246:
+                print("Sysupgrade successful, device reboots")
+            else:
+                print(f"Error: {e}")
+
 
 
 def perform_tftp_flash(initramfsfile: Path, sysupgradefile: Path):
