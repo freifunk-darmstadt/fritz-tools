@@ -17,7 +17,7 @@ from ipaddress import (
     ip_interface,
 )
 from pathlib import Path
-from subprocess import run
+from subprocess import run, CalledProcessError
 from typing import Generator, List, Literal, Tuple, Union
 
 UDP_IP = "0.0.0.0"
@@ -762,9 +762,10 @@ def perform_bootloader_flash(
             )
         print("Executing Sysupgrade")
         try:
-            return_code = ssh(target_host, ["sysupgrade", "-n", f"/tmp/{sysupgradefile.name}"])
-        except subprocess.CalledProcessError as e:
-            if return_code == 246:
+            ssh(target_host, ["sysupgrade", "-n", f"/tmp/{sysupgradefile.name}"])
+        except CalledProcessError as e:
+            if e.returncode == 246:
+                # ssh disconnects
                 print("Sysupgrade successful, device reboots")
             else:
                 print(f"Error: {e}")
