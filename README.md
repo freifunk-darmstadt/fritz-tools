@@ -10,6 +10,9 @@ We recommend Freifunk-Communities to link to the following documentation instead
 
 Download the needed images for your device and put them beside this script.
 
+Remember to eventually turn of NetworkManager or place a dumb switch in between so that the link stays up during repowering the FritzBox.
+For the 7520 I had good experience plugging the device in, waiting until all LEDs are lit during boot, and start the script directly after this.
+
 Using network autoconfiguration with privileges (uboot images must be in the same folder too):
 
 ```
@@ -21,7 +24,7 @@ sudo python3 fritzflash.py --dev eno2 --initramfs ./openwrt-22.03.5-ipq40xx-gene
 sudo./fritzflash.py --dev eno2 --initramfs ./openwrt-22.03.0-ipq40xx-generic-avm_fritzrepeater-1200-initramfs-fit-uImage.itb --sysupgrade ./openwrt-22.03.3-ipq40xx-generic-avm_fritzrepeater-1200-squashfs-sysupgrade.bin
 ```
 
-USing self configuration for other devices:
+Using self configuration for other devices:
 
 ```
 wget https://downloads.openwrt.org/releases/22.03.5/targets/ipq40xx/generic/openwrt-22.03.5-ipq40xx-generic-avm_fritzbox-4040-squashfs-eva.bin
