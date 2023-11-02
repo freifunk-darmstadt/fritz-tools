@@ -474,7 +474,7 @@ def autodiscover_avm_ip():
             raise e from None
     sender.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sender.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    sender.settimeout(1)
+    sender.settimeout(0.5)
 
     receiver = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     receiver.settimeout(AUTODISCOVER_TIMEOUT)
@@ -552,6 +552,10 @@ def determine_image_name(env_string):
         "203": {
             "openwrt": ["openwrt-lantiq-xrx200-avm_fritz7362sl-initramfs-kernel.bin"]
         },
+        "206": {
+            "gluon": ["avm-fritz-wlan-repeater-1750e-sysupgrade.bin"],
+            "openwrt": ["openwrt-ath79-generic-avm_fritz1750e-squashfs-sysupgrade.bin"]
+        },
         "209": {
             "openwrt": ["openwrt-lantiq-xrx200-avm_fritz7412-initramfs-kernel.bin"]
         },
@@ -571,6 +575,7 @@ def determine_image_name(env_string):
         },
         "236": {"openwrt": ["uboot-fritz7530.bin"]},
         "244": {"openwrt": ["uboot-fritz1200.bin"]},
+        "246": {"openwrt": ["uboot-fritz3000.bin"]},
         "247": {
             # fritzbox 7520
             "openwrt": ["uboot-fritz7530.bin"]
@@ -676,6 +681,7 @@ def perform_flash(ip, file):
         "uboot-fritz7520.bin",
         "uboot-fritz7530.bin",
         "uboot-fritz1200.bin",
+        "uboot-fritz3000.bin",
         "openwrt-lantiq-xrx200-avm_fritz7412-initramfs-kernel.bin",
         "openwrt-lantiq-xrx200-avm_fritz7362sl-initramfs-kernel.bin",
         "openwrt-lantiq-xrx200-avm_fritz7430-initramfs-kernel.bin",
