@@ -694,6 +694,7 @@ def perform_flash(ip, file):
             "uboot-fritz7520.bin",
             "uboot-fritz7530.bin",
             "uboot-fritz1200.bin",
+            "uboot-fritz3000.bin",
         ]:
             addr = size
             haddr = 0x85000000
