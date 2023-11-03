@@ -778,7 +778,7 @@ def perform_bootloader_flash(
 
 
 
-def perform_tftp_flash(initramfsfile: Path, sysupgradefile: Path):
+def perform_tftp_flash(initramfsfile: Path, sysupgradefile: Path, serve_name: str):
     with set_ip(ip_interface("192.168.1.70/24"), args.device) as can_set_ip:
         if not can_set_ip:
             print("could not set ip to 192.168.1.70/24")
@@ -788,7 +788,7 @@ def perform_tftp_flash(initramfsfile: Path, sysupgradefile: Path):
             exit(1)
         success = False
         while not success:
-            success, host = next(serve_file(initramfsfile))
+            success, host = next(serve_file(initramfsfile, serve_name))
         print(f"-> Transfered initramfs image to {host}.")
 
 
@@ -820,7 +820,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    flash_tftp = False
+    tftp_serve_name = ""
     ramfsfile = None
     sysupgradefile = None
     imagefile = None
@@ -829,8 +829,8 @@ if __name__ == "__main__":
         if not imagefile.is_file():
             print(f'Image file "{imagefile.absolute()}" does not exist!')
             exit(1)
-        print("If this device is a FB 7520/7530 or a FR 1200 write y")
-        flash_tftp = input().lower().startswith("y")
+        print("If this device needs TFTP flashing, enter the serve name (e.g. FRITZ7520.bin) - else leave empty")
+        tftp_serve_name = input().strip()
 
     start_message()
 
@@ -876,9 +876,16 @@ if __name__ == "__main__":
         if args.image is None:
             # Try to automatically locate an image to use
             imagefile, hwrevision = autoload_image(ip)
-            flash_tftp = hwrevision in ["236", "244", "247"]
 
-        if flash_tftp:
+            tftp_serve_file = {
+                "236": "FRITZ7530.bin",
+                "244": "FRITZ1200.bin",
+                "246": "FRITZ3000.bin",
+                "247": "FRITZ7530.bin",
+            }
+            tftp_serve_name = tftp_serve_file.get(hwrevision, "")
+
+        if tftp_serve_name:
             if not (args.initramfs and args.sysupgrade):
                 print("Providing initramfs and sysupgrade is required for this device")
                 exit(1)
@@ -895,9 +902,9 @@ if __name__ == "__main__":
 
         perform_flash(ip, imagefile)
 
-    if flash_tftp:
-        print("Starting TFTP flash process for FB 7530/7520 or FR 1200")
-        perform_tftp_flash(args.initramfs, args.sysupgrade)
+    if tftp_serve_name:
+        print("Starting TFTP flash process for FB 7530/7520, FR 1200 or FR 3000")
+        perform_tftp_flash(args.initramfs, args.sysupgrade, tftp_serve_name)
         print("Sleep 90s - let system boot")
         time.sleep(60)
         print("Device will come up for ~5s about now, but we still need to wait 30s")
@@ -905,7 +912,7 @@ if __name__ == "__main__":
     if args.sysupgrade:
         sysupgradefile = Path(args.sysupgrade)
         print(f"flashing sysupgrade {sysupgradefile} through ssh")
-        perform_bootloader_flash(sysupgradefile, imagefile, flash_tftp)
+        perform_bootloader_flash(sysupgradefile, imagefile, tftp_serve_name)
     else:
         print(
             "no additional sysupgrade provided, depending on your device, you should run sysupgrade to persistently install firmware"
