@@ -234,7 +234,7 @@ def main_tftp():
             print(f"Successfully served file {sys.argv[1]} to Host {host}")
             try:
                 input(
-                    "Press any key to serve to another Host, CTRL-c or CTRL-d to stop TFTP server."
+                    "Press enter key to serve to another Host, CTRL-c or CTRL-d to stop TFTP server."
                 )
             except (KeyboardInterrupt, EOFError):
                 break
@@ -454,7 +454,7 @@ def finish_message():
         "Remember to reconfigure your interface to automatically obtain an IP-address!\n"
         "You can reach config-mode by typing in http://192.168.1.1/ in your preferred Webbrowser.\n"
     )
-    print("Press any key to exit.")
+    print("Press enter to exit.")
     input()
 
 
@@ -620,7 +620,7 @@ def autoload_image(ip):
     if image_names is None:
         print("\nAutomatic image-selection unsuccessful!")
         print("-> Unknown Model %s!" % env["HWRevision"])
-        print("Press any key to exit.")
+        print("Press enter to exit.")
         input()
         exit(1)
 
@@ -639,7 +639,7 @@ def autoload_image(ip):
         for file in files:
             print("--> %s" % file)
         print("\nPlease specify the image via `--image` parameter.")
-        print("Press any key to exit.")
+        print("Press enter to exit.")
         input()
         exit(1)
 
@@ -647,7 +647,7 @@ def autoload_image(ip):
         print("\nAutomatic image-selection unsuccessful!")
         print("--> No potential image file found!")
         print("\nPlease download and specify the image via `--image` parameter.")
-        print("Press any key to exit.")
+        print("Press enter to exit.")
         input()
         exit(1)
 
@@ -666,12 +666,12 @@ def perform_flash(ip, file):
         )
     except FritzFTP.ConnectionTimeout:
         print("-> Max retries exceeded! Check connection and try again.")
-        print("Press any key to exit.")
+        print("Press enter to exit.")
         input()
         exit(1)
     except ConnectionRefusedError:
         connection_refused_message()
-        print("Press any key to exit.")
+        print("Press enter to exit.")
         input()
         exit(1)
 
@@ -730,8 +730,9 @@ def perform_bootloader_flash(
     with set_ip(ip_interface("192.168.1.70/24"), args.device) as can_set_ip:
         if not can_set_ip:
             print("could not set ip to 192.168.1.70/24")
-            print("make sure to run with admin privileges")
-            exit(1)
+            print("please set the IP of your network adapter to this adress and press enter to continue")
+            print("or press CTRL+C to abort and re-run with admin rights")
+            input()
         target_host = ip_address("192.168.1.1")
         print("Waiting for Host to come up with IP Adress 192.168.1.1 ...")
         await_online(target_host)
@@ -783,10 +784,9 @@ def perform_tftp_flash(initramfsfile: Path, sysupgradefile: Path, serve_name: st
     with set_ip(ip_interface("192.168.1.70/24"), args.device) as can_set_ip:
         if not can_set_ip:
             print("could not set ip to 192.168.1.70/24")
-            print(
-                "make sure to run with admin privileges and that the ip is currently unset"
-            )
-            exit(1)
+            print("please set the IP of your network adapter to this adress and press enter to continue")
+            print("or press CTRL+C to abort and re-run with admin rights")
+            input()
         success = False
         while not success:
             success, host = next(serve_file(initramfsfile, serve_name))
@@ -867,7 +867,7 @@ if __name__ == "__main__":
 
             if ip is None:
                 print("\nAutodiscovery failed!")
-                print("Press any key to exit.")
+                print("Press enter to exit.")
                 input()
                 exit(1)
 
