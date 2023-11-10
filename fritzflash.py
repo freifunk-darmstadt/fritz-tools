@@ -176,7 +176,7 @@ def serve(port: int, file: Path, mode: TRANSFER_MODES_T) -> Tuple[bool, str]:
                         return True, addr
                     block += 1
                     if block % 256 == 0:
-                        print(f"{block} / {size}", end="")
+                        print(f"\r{block} / {size}", end="")
 
                     packet = create_data_packet(block, file, mode)
                     sock.sendto(packet, addr)
@@ -249,7 +249,7 @@ AUTODISCOVER_TIMEOUT = 1
 FTP_TIMEOUT = 2
 FTP_MAX_RETRY = 10
 
-INITRAMFS_BOOT_TIMEOUT = 180  # in seconds
+INITRAMFS_BOOT_TIMEOUT = 60  # in seconds
 IS_POSIX = platform.system() in ["Linux", "Darwin", "FreeBSD"]
 
 
@@ -373,8 +373,15 @@ def set_ip(
 
 
 def await_online(host: IPAddress):
-    response = run(["ping", "-c", "1", "-w", f"{INITRAMFS_BOOT_TIMEOUT}", str(host)])
-    return response.returncode
+    returncode = -1
+    while returncode != 0:
+        response = run(
+            ["ping", "-c", "1", "-w", str(INITRAMFS_BOOT_TIMEOUT), str(host)],
+            capture_output=True,
+        )
+        returncode = response.returncode
+        print(".", end="")
+    return returncode
 
 
 def scp_legacy_check() -> bool:
@@ -399,14 +406,13 @@ def ssh(host: IPAddress, cmd: List[str], user: str = "root"):
         "-o",
         "HostKeyAlgorithms=+ssh-rsa",
     ]
-    run(["ssh", *args, f"{user}@{host}", *cmd]).check_returncode()
+    run(["ssh", *args, f"{user}@{host}", *cmd], capture_output=True).check_returncode()
 
 
 def scp(host: IPAddress, file: Path, user: str = "root", target: Path = Path("/tmp/")):
     null_file = "/dev/null" if IS_POSIX else "NUL"
     args = ["-o", "StrictHostKeyChecking=no", "-o", f"UserKnownHostsFile={null_file}"]
     if scp_legacy_check():
-        print("using legacy")
         args.append("-O")
     run(["scp", *args, file.name, f"{user}@{host}:{target}"]).check_returncode()
 
@@ -512,49 +518,55 @@ def determine_image_name(env_string):
     models = {
         "172": {
             "gluon": ["avm-fritz-box-7320-sysupgrade.bin"],
-            "openwrt": ["avm_fritz7320-squashfs-sysupgrade.bin"],
+            "openwrt": ["openwrt-lantiq-xway-avm_fritz7320-squashfs-sysupgrade.bin"],
         },
         "173": {
             "gluon": ["avm-fritz-wlan-repeater-300e-sysupgrade.bin"],
-            "openwrt": ["fritz300e-squashfs-sysupgrade.bin"],
+            "openwrt": ["openwrt-ath79-generic-avm_fritz300e-squashfs-sysupgrade.bin"],
         },
         "179": {
             "gluon": ["avm-fritz-box-7330-sysupgrade.bin"],
-            "openwrt": ["avm_fritz7320-squashfs-sysupgrade.bin"],
+            "openwrt": ["openwrt-lantiq-xway-avm_fritz7330-squashfs-sysupgrade.bin"],
         },
         "181": {
             "gluon": ["avm-fritz-box-7360-sl-sysupgrade.bin"],
-            "openwrt": ["avm_fritz7360sl-squashfs-sysupgrade.bin"],
+            "openwrt": [
+                "openwrt-lantiq-xrx200-avm_fritz7360sl-squashfs-sysupgrade.bin"
+            ],
         },
         "183": {
             "gluon": ["avm-fritz-box-7360-v1-sysupgrade.bin"],
-            "openwrt": ["avm_fritz7360sl-squashfs-sysupgrade.bin"],
+            "openwrt": [
+                "openwrt-lantiq-xrx200-avm_fritz7360-v1-squashfs-sysupgrade.bin"
+            ],
         },
         "188": {
             "gluon": ["avm-fritz-box-7330-sl-sysupgrade.bin"],
-            "openwrt": ["avm_fritz7320-squashfs-sysupgrade.bin"],
+            "openwrt": ["openwrt-lantiq-xway-avm_fritz7320-squashfs-sysupgrade.bin"],
         },
         "189": {
             "gluon": ["avm-fritz-box-7312-sysupgrade.bin"],
-            "openwrt": ["avm_fritz7312-squashfs-sysupgrade.bin"],
+            "openwrt": ["openwrt-lantiq-xway-avm_fritz7312-squashfs-sysupgrade.bin"],
         },
         "193": {
-            "openwrt": ["avm_fritz3390-initramfs-kernel.bin"],
+            "openwrt": ["openwrt-lantiq-xrx200-avm_fritz3390-initramfs-kernel.bin"],
         },
         "196": {
             "gluon": ["avm-fritz-box-7360-v2-sysupgrade.bin"],
-            "openwrt": ["avm_fritz7360sl-squashfs-sysupgrade.bin"],
+            "openwrt": [
+                "openwrt-lantiq-xrx200-avm_fritz7360-v2-squashfs-sysupgrade.bin"
+            ],
         },
         "200": {
             "gluon": ["avm-fritz-wlan-repeater-450e-sysupgrade.bin"],
-            "openwrt": ["fritz450e-squashfs-sysupgrade.bin"],
+            "openwrt": ["openwrt-ath79-generic-avm_fritz450e-squashfs-sysupgrade.bin"],
         },
         "203": {
             "openwrt": ["openwrt-lantiq-xrx200-avm_fritz7362sl-initramfs-kernel.bin"]
         },
         "206": {
             "gluon": ["avm-fritz-wlan-repeater-1750e-sysupgrade.bin"],
-            "openwrt": ["openwrt-ath79-generic-avm_fritz1750e-squashfs-sysupgrade.bin"]
+            "openwrt": ["openwrt-ath79-generic-avm_fritz1750e-squashfs-sysupgrade.bin"],
         },
         "209": {
             "openwrt": ["openwrt-lantiq-xrx200-avm_fritz7412-initramfs-kernel.bin"]
@@ -566,12 +578,12 @@ def determine_image_name(env_string):
             "gluon": ["avm-fritz-box-4020-sysupgrade.bin"],
             "openwrt": [
                 "fritz4020-squashfs-sysupgrade.bin",
-                "avm_fritz4020-squashfs-sysupgrade.bin",
+                "openwrt-ath79-generic-avm_fritz4020-squashfs-sysupgrade.bin",
             ],
         },
         "227": {
             "gluon": ["avm-fritz-box-4040-bootloader.bin"],
-            "openwrt": ["avm_fritzbox-4040-squashfs-eva.bin"],
+            "openwrt": ["openwrt-ipq40xx-generic-avm_fritzbox-4040-squashfs-eva.bin"],
         },
         "236": {"openwrt": ["uboot-fritz7530.bin"]},
         "244": {"openwrt": ["uboot-fritz1200.bin"]},
@@ -646,6 +658,7 @@ def autoload_image(ip):
     if not files:
         print("\nAutomatic image-selection unsuccessful!")
         print("--> No potential image file found!")
+        print(f"Did not find any file of {image_names}")
         print("\nPlease download and specify the image via `--image` parameter.")
         print("Press enter to exit.")
         input()
@@ -713,7 +726,11 @@ def perform_flash(ip, file):
             ftp.voidcmd("SETENV memsize 0x%08x" % (addr))
             ftp.voidcmd("SETENV kernel_args_tmp mtdram1=0x%08x,0x88000000" % (haddr))
             ftp.voidcmd("MEDIA SDRAM")
-            ftp.storbinary("STOR 0x%08x 0x88000000" % (haddr), img)
+            try:
+                ftp.storbinary("STOR 0x%08x 0x88000000" % (haddr), img)
+            except TimeoutError:
+                print("timeout - should not happen when flashing uboot")
+            print("-> Image write successful")
     else:
         flash_message()
         ftp.upload_image(file)
@@ -730,13 +747,16 @@ def perform_bootloader_flash(
     with set_ip(ip_interface("192.168.1.70/24"), args.device) as can_set_ip:
         if not can_set_ip:
             print("could not set ip to 192.168.1.70/24")
-            print("please set the IP of your network adapter to this adress and press enter to continue")
-            print("or press CTRL+C to abort and re-run with admin rights")
+            print(
+                "please set the IP of your network adapter to this adress and press enter to continue or press CTRL+C to abort and re-run with admin rights"
+            )
             input()
         target_host = ip_address("192.168.1.1")
-        print("Waiting for Host to come up with IP Adress 192.168.1.1 ...")
+        print(f"Waiting for Host to come up with IP Adress {target_host} ...")
         await_online(target_host)
-        print("-> Host online.\nTransfering sysupgrade target firmware")
+        print("-> Host online.\nWait to finish boot")
+        time.sleep(15)
+        print("Transfering sysupgrade target firmware")
         scp(target_host, sysupgradefile)
         if flash_tftp:
             print("-> Transfering bootloader")
@@ -779,13 +799,13 @@ def perform_bootloader_flash(
                 print(f"Error: {e}")
 
 
-
 def perform_tftp_flash(initramfsfile: Path, sysupgradefile: Path, serve_name: str):
     with set_ip(ip_interface("192.168.1.70/24"), args.device) as can_set_ip:
         if not can_set_ip:
             print("could not set ip to 192.168.1.70/24")
-            print("please set the IP of your network adapter to this adress and press enter to continue")
-            print("or press CTRL+C to abort and re-run with admin rights")
+            print(
+                "please set the IP of your network adapter to this adress and press enter to continue or press CTRL+C to abort and re-run with admin rights"
+            )
             input()
         success = False
         while not success:
@@ -821,6 +841,11 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    # target_host = ip_address("192.168.1.1")
+    # print(f"Waiting for Host to come up with IP Adress {target_host} ...")
+    # await_online(target_host)
+    # scp(target_host, Path(args.sysupgrade))
+
     tftp_serve_name = ""
     ramfsfile = None
     sysupgradefile = None
@@ -830,7 +855,9 @@ if __name__ == "__main__":
         if not imagefile.is_file():
             print(f'Image file "{imagefile.absolute()}" does not exist!')
             exit(1)
-        print("If this device needs TFTP flashing, enter the serve name (e.g. FRITZ7520.bin) - else leave empty")
+        print(
+            "If this device needs TFTP flashing, enter the serve name (e.g. FRITZ7520.bin) - else leave empty"
+        )
         tftp_serve_name = input().strip()
 
     start_message()
@@ -908,9 +935,10 @@ if __name__ == "__main__":
         perform_tftp_flash(args.initramfs, args.sysupgrade, tftp_serve_name)
         print("Sleep 90s - let system boot")
         time.sleep(60)
-        print("Device will come up for ~5s about now, but we still need to wait 30s")
-        time.sleep(30)
+        print("Device will come up for ~5s about now.")
     if args.sysupgrade:
+        print("we still need to wait 30s for boot completion")
+        time.sleep(30)
         sysupgradefile = Path(args.sysupgrade)
         print(f"flashing sysupgrade {sysupgradefile} through ssh")
         perform_bootloader_flash(sysupgradefile, imagefile, tftp_serve_name)
