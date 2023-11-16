@@ -16,10 +16,10 @@ For the 7520 I had good experience plugging the device in, waiting until all LED
 Using network autoconfiguration with privileges (uboot images must be in the same folder too):
 
 ```
-wget https://downloads.openwrt.org/releases/22.03.5/targets/ipq40xx/generic/openwrt-22.03.5-ipq40xx-generic-avm_fritzbox-7530-initramfs-fit-uImage.itb
-wget https://firmware.freifunk-aachen.de/firmware/download/from-2022.1.x/sysupgrade/gluon-ffac-v2022.1.14-1-avm-fritz-box-7530-sysupgrade.bin
+wget https://downloads.openwrt.org/snapshots/targets/ipq40xx/generic/openwrt-ipq40xx-generic-avm_fritzbox-7530-initramfs-uImage.itb
+wget $GLUON_URL_avm-fritz-box-7530-sysupgrade.bin
 wget https://downloads.openwrt.org/snapshots/targets/ipq40xx/generic/u-boot-fritz7530/uboot-fritz7530.bin
-sudo python3 fritzflash.py --dev eno2 --initramfs ./openwrt-22.03.5-ipq40xx-generic-avm_fritzbox-7530-initramfs-fit-uImage.itb --sysupgrade ./gluon-ffac-v2022.1.14-1-avm-fritz-box-7530-sysupgrade.bin
+sudo python3 fritzflash.py --dev eno2 --initramfs ./openwrt-ipq40xx-generic-avm_fritzbox-7530-initramfs-uImage.itb --sysupgrade ./gluon-ffac-v2022.1.14-1-avm-fritz-box-7530-sysupgrade.bin
 
 sudo./fritzflash.py --dev eno2 --initramfs ./openwrt-22.03.0-ipq40xx-generic-avm_fritzrepeater-1200-initramfs-fit-uImage.itb --sysupgrade ./openwrt-22.03.3-ipq40xx-generic-avm_fritzrepeater-1200-squashfs-sysupgrade.bin
 ```
@@ -32,6 +32,23 @@ wget https://downloads.openwrt.org/releases/22.03.5/targets/ipq40xx/generic/open
 sudo ip a a 192.168.178.2/24 dev eno2
 ./fritzflash.py --dev eno2 --sysupgrade ./openwrt-22.03.5-ipq40xx-generic-avm_fritzbox-4040-squashfs-sysupgrade.bin
 ```
+
+ Device | Install command 
+---|---
+ FB3000 | sudo python3 fritzflash.py --dev eno2 --initramfs ./openwrt-22.03.2-ipq40xx-generic-avm_fritzbox-7530-initramfs-fit-uImage.itb --sysupgrade ./gluon-ffac-v2023.1.0-4-avm-fritz-box-7530-sysupgrade.bin 
+ FB7520 | sudo python3 fritzflash.py --dev eno2 --initramfs ./openwrt-22.03.2-ipq40xx-generic-avm_fritzbox-7530-initramfs-fit-uImage.itb --sysupgrade ./gluon-ffac-v2023.1.0-4-avm-fritz-box-7530-sysupgrade.bin 
+ FB7530 | sudo python3 fritzflash.py --dev eno2 --initramfs ./openwrt-22.03.2-ipq40xx-generic-avm_fritzbox-7530-initramfs-fit-uImage.itb --sysupgrade ./gluon-ffac-v2023.1.0-4-avm-fritz-box-7530-sysupgrade.bin 
+ FB1200 | sudo./fritzflash.py --dev eno2 --initramfs ./openwrt-22.03.0-ipq40xx-generic-avm_fritzrepeater-1200-initramfs-fit-uImage.itb --sysupgrade ./openwrt-22.03.3-ipq40xx-generic-avm_fritzrepeater-1200-squashfs-sysupgrade.bin 
+ FB7362 SL | sudo ./fritzflash.py -dev eno2 --sysupgrade ./gluon-ffac-v2023.1.1-1-avm-fritz-box-7362-sl-sysupgrade.bin 
+ FB7412 | sudo ./fritzflash.py -dev eno2 --sysupgrade ./gluon-ffac-v2023.1.1-1-avm-fritz-box-7412-sysupgrade.bin
+ FB7430 | sudo ./fritzflash.py -dev eno2 --sysupgrade ./gluon-ffac-v2023.1.1-1-avm-fritz-box-7430-sysupgrade.bin
+ FB7360 SL | sudo ./fritzflash.py -dev eno2
+ FR450e | sudo ./fritzflash.py -dev eno2 
+ FR4040 | sudo ./fritzflash.py -dev eno2 
+ FR4020 | sudo ./fritzflash.py -dev eno2 
+ FR1750e | sudo ./fritzflash.py -dev eno2 
+
+
 
 ## Windows Usage
 
