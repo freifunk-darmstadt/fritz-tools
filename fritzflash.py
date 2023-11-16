@@ -690,6 +690,7 @@ def perform_flash(ip, file):
 
     print("-> Flash image")
 
+    # if uboot or initramfs in file.name?
     if file.name in [
         "uboot-fritz7520.bin",
         "uboot-fritz7530.bin",
@@ -698,7 +699,7 @@ def perform_flash(ip, file):
         "openwrt-lantiq-xrx200-avm_fritz7412-initramfs-kernel.bin",
         "openwrt-lantiq-xrx200-avm_fritz7362sl-initramfs-kernel.bin",
         "openwrt-lantiq-xrx200-avm_fritz7430-initramfs-kernel.bin",
-        "avm_fritz3390-initramfs-kernel.bin",
+        "openwrt-lantiq-xrx200-avm_fritz3390-initramfs-kernel.bin",
     ]:
         size = file.stat().st_size
         assert size < 0x2000000
@@ -714,13 +715,14 @@ def perform_flash(ip, file):
         else:
             addr = (0x8000000 - size) & ~0xFFF
             haddr = 0x80000000 + addr
+
         with file.open("rb") as img:
             # The following parameters allow booting the avm recovery system with this
             # script.
             if file.name in [
                 "openwrt-lantiq-xrx200-avm_fritz7412-initramfs-kernel.bin",
                 "openwrt-lantiq-xrx200-avm_fritz7430-initramfs-kernel.bin",
-                "avm_fritz3390-initramfs-kernel.bin",
+                "openwrt-lantiq-xrx200-avm_fritz3390-initramfs-kernel.bin",
             ]:
                 ftp.voidcmd("SETENV linux_fs_start 0")
             ftp.voidcmd("SETENV memsize 0x%08x" % (addr))
@@ -729,8 +731,8 @@ def perform_flash(ip, file):
             try:
                 ftp.storbinary("STOR 0x%08x 0x88000000" % (haddr), img)
             except TimeoutError:
-                print("timeout - should not happen when flashing uboot")
-            print("-> Image write successful")
+                print("storbinary timeout - expected on initramfs-kernel flash")
+        print("-> Image write successful")
     else:
         flash_message()
         ftp.upload_image(file)
@@ -929,6 +931,9 @@ if __name__ == "__main__":
                 exit(1)
 
         perform_flash(ip, imagefile)
+    
+        print("")
+
 
     if tftp_serve_name:
         print("Starting TFTP flash process for FB 7530/7520, FR 1200 or FR 3000")
@@ -942,9 +947,10 @@ if __name__ == "__main__":
         sysupgradefile = Path(args.sysupgrade)
         print(f"flashing sysupgrade {sysupgradefile} through ssh")
         perform_bootloader_flash(sysupgradefile, imagefile, tftp_serve_name)
-    else:
+    elif "initramfs" in imagefile.name:
+        print("WARNING: Openwrt is now installed in RAM")
         print(
-            "no additional sysupgrade provided, depending on your device, you should run sysupgrade to persistently install firmware"
+            "as no additional sysupgrade was provided, you should connect per ssh and run sysupgrade to persistently install firmware"
         )
     print("Finished flash procedure")
     finish_message()
