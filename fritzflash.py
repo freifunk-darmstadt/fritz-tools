@@ -324,52 +324,57 @@ def set_ip(
     ipinterface: IPInterface, network_device: str
 ) -> Generator[bool, None, None]:
     if IS_POSIX:
-        output = run(
-            ["ip", "addr", "add", ipinterface.with_prefixlen, "dev", network_device],
-            capture_output=True,
-        )
-        try:
-            yield output.returncode in [0, 2]
-        finally:
-            run(
-                [
-                    "ip",
-                    "addr",
-                    "delete",
-                    ipinterface.with_prefixlen,
-                    "dev",
-                    network_device,
-                ]
-            )
+        start_command = [
+            "ip",
+            "addr",
+            "add",
+            ipinterface.with_prefixlen,
+            "dev",
+            network_device,
+        ]
+        shutdown_command = [
+            "ip",
+            "addr",
+            "delete",
+            ipinterface.with_prefixlen,
+            "dev",
+            network_device,
+        ]
     else:
-        output = run(
-            [
-                "netsh",
-                "interface",
-                "ipv4",
-                "add",
-                "address",
-                f"{network_device}",
-                f"{ipinterface.ip}",
-                f"{ipinterface.netmask}",
-            ],
-            capture_output=True,
-        )
-        try:
+        start_command = [
+            "netsh",
+            "interface",
+            "ipv4",
+            "add",
+            "address",
+            f"{network_device}",
+            f"{ipinterface.ip}",
+            f"{ipinterface.netmask}",
+        ]
+        shutdown_command = [
+            "netsh",
+            "interface",
+            "ipv4",
+            "delete",
+            "address",
+            f"{network_device}",
+            f"{ipinterface.ip}",
+        ]
+
+    output = run(
+        start_command,
+        capture_output=True,
+    )
+    try:
+        if IS_POSIX:
+            yield output.returncode in [0, 2]
+        else:
+            # sleep is sometimes required on windows
+            # just give the network adapter some time
             time.sleep(5)
             yield output.returncode == 0
-        finally:
-            run(
-                [
-                    "netsh",
-                    "interface",
-                    "ipv4",
-                    "delete",
-                    "address",
-                    f"{network_device}",
-                    f"{ipinterface.ip}",
-                ]
-            )
+    finally:
+        run(shutdown_command)
 
 
 def await_online(host: IPAddress):
@@ -839,7 +844,7 @@ if __name__ == "__main__":
         "-dev",
         type=str,
         help="Name of the Ethernet adapter (look it up ie by 'ip link')",
-        required=True,
+        default="",
     )
     args = parser.parse_args()
 
@@ -931,9 +936,8 @@ if __name__ == "__main__":
                 exit(1)
 
         perform_flash(ip, imagefile)
-    
-        print("")
 
+        print("")
 
     if tftp_serve_name:
         print("Starting TFTP flash process for FB 7530/7520, FR 1200 or FR 3000")
