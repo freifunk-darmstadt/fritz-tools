@@ -33,6 +33,10 @@ sudo ip a a 192.168.178.2/24 dev eno2
 ./fritzflash.py --dev eno2 --sysupgrade ./openwrt-22.03.5-ipq40xx-generic-avm_fritzbox-4040-squashfs-sysupgrade.bin
 ```
 
+## Installation Commands (Linux)
+
+Make sure to replace `eno2` with the correct name of your ethernet adapter
+
  Device | Install command 
 ---|---
  FB3000 | sudo python3 fritzflash.py --dev eno2 --initramfs ./openwrt-22.03.2-ipq40xx-generic-avm_fritzbox-7530-initramfs-fit-uImage.itb --sysupgrade ./gluon-ffac-v2023.1.0-4-avm-fritz-box-7530-sysupgrade.bin 
